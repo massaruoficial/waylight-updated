@@ -3,7 +3,10 @@ package com.soradotwav.waylight.render;
 import com.soradotwav.waylight.config.WaylightConfig;
 import com.soradotwav.waylight.lantern.PoseMode;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
@@ -17,6 +20,11 @@ public final class LanternTransformResolver {
 	private static final float LEFT_ARM_ANCHOR_Y = 1.18F;
 	private static final float LEFT_ARM_ANCHOR_Y_CROUCH = 1.04F;
 	private static final float LEFT_ARM_ANCHOR_Z = 0.0F;
+	private static final double FIRST_PERSON_LEFT_OFFSET = 0.34D;
+	private static final double FIRST_PERSON_FORWARD_OFFSET = 0.58D;
+	private static final double FIRST_PERSON_VERTICAL_OFFSET = -0.24D;
+	private static final double FIRST_PERSON_YAW_LAG_SCALE = 0.0035D;
+	private static final double FIRST_PERSON_PITCH_LIFT_SCALE = 0.0025D;
 
 	public LanternTransform resolveThirdPerson(VirtualLanternState lanternState, LanternPoseState poseState, WaylightConfig config) {
 		if (lanternState.poseMode() == PoseMode.HAND_LEFT) {
@@ -59,7 +67,14 @@ public final class LanternTransformResolver {
 	}
 
 	public boolean resolveWorldEmission(LocalPlayer player, VirtualLanternState lanternState, LanternPoseState poseState, WaylightConfig config, Vector3d destination) {
+		boolean firstPerson = Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON;
+		if (firstPerson && lanternState.poseMode() == PoseMode.HAND_LEFT) {
+			resolveFirstPersonHandLeftEmission(player, poseState, destination);
+			return true;
+		}
+
 		LanternTransform transform = resolveThirdPerson(lanternState, poseState, config);
+		float anchorYaw = player.yBodyRot;
 		Vector3f offset = new Vector3f(
 			transform.translateX() + transform.emissionX(),
 			transform.translateY() + transform.emissionY(),
@@ -69,11 +84,24 @@ public final class LanternTransformResolver {
 		offset.rotateZ((float) Math.toRadians(transform.rotateZ()));
 		offset.rotateX((float) Math.toRadians(transform.rotateX()));
 		offset.rotateY((float) Math.toRadians(transform.rotateY()));
-		offset.rotateY((float) Math.toRadians(-player.yBodyRot));
+		offset.rotateY((float) Math.toRadians(-anchorYaw));
 
 		Vector3f anchor = resolveAnchor(player, transform.attachment());
 		destination.set(player.getX() + anchor.x() + offset.x(), player.getY() + anchor.y() + offset.y(), player.getZ() + anchor.z() + offset.z());
 		return true;
+	}
+
+	private static void resolveFirstPersonHandLeftEmission(LocalPlayer player, LanternPoseState poseState, Vector3d destination) {
+		Vec3 eyePosition = player.getEyePosition();
+		Vec3 forward = player.getViewVector(1.0F).normalize();
+		Vec3 left = new Vec3(forward.z, 0.0, -forward.x).normalize();
+		double yawOffset = poseState.yawLag(1.0F) * FIRST_PERSON_YAW_LAG_SCALE;
+		double pitchOffset = -poseState.pitchAngle(1.0F) * FIRST_PERSON_PITCH_LIFT_SCALE;
+		Vec3 emission = eyePosition
+			.add(left.scale(FIRST_PERSON_LEFT_OFFSET + yawOffset))
+			.add(forward.scale(FIRST_PERSON_FORWARD_OFFSET))
+			.add(0.0, FIRST_PERSON_VERTICAL_OFFSET + pitchOffset, 0.0);
+		destination.set(emission.x, emission.y, emission.z);
 	}
 
 	private static Vector3f resolveAnchor(LocalPlayer player, LanternTransform.Attachment attachment) {

@@ -3,6 +3,7 @@ package com.soradotwav;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.soradotwav.waylight.lantern.VirtualLanternController;
 import com.soradotwav.waylight.light.LambDynamicLightsAdapter;
+import com.soradotwav.waylight.render.LanternRigResolver;
 import com.soradotwav.waylight.render.LanternPoseController;
 import com.soradotwav.waylight.render.LanternTransformResolver;
 import com.soradotwav.waylight.render.WaylightRenderHooks;
@@ -20,7 +21,8 @@ public class WaylightClient implements ClientModInitializer {
 	);
 
 	public static final WaylightConfigManager CONFIG_MANAGER = new WaylightConfigManager();
-	public static final LanternTransformResolver TRANSFORM_RESOLVER = new LanternTransformResolver();
+	public static final LanternRigResolver RIG_RESOLVER = new LanternRigResolver();
+	public static final LanternTransformResolver TRANSFORM_RESOLVER = RIG_RESOLVER.transformResolver();
 	public static VirtualLanternController LANTERN_CONTROLLER;
 	public static LanternPoseController POSE_CONTROLLER;
 	public static LambDynamicLightsAdapter DYNAMIC_LIGHTS_ADAPTER;
