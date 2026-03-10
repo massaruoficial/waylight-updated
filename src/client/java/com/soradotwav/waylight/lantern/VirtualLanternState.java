@@ -5,6 +5,8 @@ public record VirtualLanternState(
 	LanternType lanternType,
 	PoseMode poseMode,
 	boolean lightActive,
-	boolean modelVisible
+	boolean modelVisible,
+	boolean temporarilySuppressed,
+	boolean underwaterExtinguished
 ) {
 }

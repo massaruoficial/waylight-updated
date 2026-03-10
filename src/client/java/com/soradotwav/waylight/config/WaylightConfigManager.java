@@ -66,7 +66,7 @@ public final class WaylightConfigManager {
 
 		sanitized.motionIntensity = Mth.clamp(sanitized.motionIntensity, 25, 200);
 
-		if (!"hip".equals(sanitized.poseMode)) {
+		if (!"hip".equals(sanitized.poseMode) && !"hand_left".equals(sanitized.poseMode)) {
 			sanitized.poseMode = "hip";
 		}
 

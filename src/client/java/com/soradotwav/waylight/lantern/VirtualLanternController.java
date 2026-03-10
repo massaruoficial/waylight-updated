@@ -18,7 +18,7 @@ public final class VirtualLanternController {
 
 	private final WaylightConfigManager configManager;
 	private final LanternVisibilityRules visibilityRules = new LanternVisibilityRules();
-	private VirtualLanternState currentState = new VirtualLanternState(false, LanternType.NORMAL, PoseMode.HIP, false, false);
+	private VirtualLanternState currentState = new VirtualLanternState(false, LanternType.NORMAL, PoseMode.HIP, false, false, false, false);
 
 	public VirtualLanternController(WaylightConfigManager configManager) {
 		this.configManager = configManager;
@@ -49,7 +49,7 @@ public final class VirtualLanternController {
 		if (player != null
 			&& previousState.enabled()
 			&& currentState.enabled()
-			&& previousState.lightActive() != currentState.lightActive()) {
+			&& hasTransition(previousState, currentState)) {
 			playTransitionSound(player, previousState, currentState);
 		}
 	}
@@ -74,13 +74,29 @@ public final class VirtualLanternController {
 	}
 
 	private static void playTransitionSound(LocalPlayer player, VirtualLanternState previousState, VirtualLanternState currentState) {
-		if (previousState.lightActive() && !currentState.lightActive()) {
+		if (previousState.temporarilySuppressed() != currentState.temporarilySuppressed()) {
+			playLanternSound(player, !currentState.temporarilySuppressed());
+			return;
+		}
+
+		if (previousState.underwaterExtinguished() && !currentState.underwaterExtinguished()) {
+			player.playSound(SoundEvents.FLINTANDSTEEL_USE, RELIGHT_VOLUME, RELIGHT_PITCH);
+			return;
+		}
+
+		if (!previousState.underwaterExtinguished() && currentState.underwaterExtinguished()) {
 			player.playSound(SoundEvents.FIRE_EXTINGUISH, EXTINGUISH_VOLUME, EXTINGUISH_PITCH);
 			return;
 		}
 
-		if (!previousState.lightActive() && currentState.lightActive()) {
-			player.playSound(SoundEvents.FLINTANDSTEEL_USE, RELIGHT_VOLUME, RELIGHT_PITCH);
+		if (previousState.lightActive() != currentState.lightActive()) {
+			playLanternSound(player, currentState.lightActive());
 		}
+	}
+
+	private static boolean hasTransition(VirtualLanternState previousState, VirtualLanternState currentState) {
+		return previousState.temporarilySuppressed() != currentState.temporarilySuppressed()
+			|| previousState.underwaterExtinguished() != currentState.underwaterExtinguished()
+			|| previousState.lightActive() != currentState.lightActive();
 	}
 }

@@ -12,6 +12,8 @@
   "waylight.config.option.lantern_type.desc": "Choose which vanilla lantern model Waylight renders on your hip.",
   "waylight.config.option.lantern_side": "Lantern Side",
   "waylight.config.option.lantern_side.desc": "Choose which hip Waylight anchors the lantern to.",
+  "waylight.config.option.carry_mode": "Carry Mode",
+  "waylight.config.option.carry_mode.desc": "Choose whether Waylight renders on your hip or as a lantern held in your left hand.",
   "waylight.config.option.first_person_light": "First-Person Light",
   "waylight.config.option.first_person_light.desc": "Keep Waylight's dynamic light active even when the lantern model is hidden in first person.",
   "waylight.config.option.extinguish_underwater": "Extinguish Underwater",
@@ -22,6 +24,8 @@
   "waylight.config.option.debug_anchor_gizmo.desc": "Render a small RGB gizmo at the lantern anchor for transform tuning.",
   "waylight.config.value.lantern.normal": "Lantern",
   "waylight.config.value.lantern.soul": "Soul Lantern",
+  "waylight.config.value.pose.hip": "Hip",
+  "waylight.config.value.pose.hand_left": "Left Hand",
   "waylight.config.value.side.right": "Right Hip",
   "waylight.config.value.side.left": "Left Hip"
 }

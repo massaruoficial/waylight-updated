@@ -47,6 +47,16 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 							)
 							.controller(option -> EnumControllerBuilder.create(option).enumClass(LanternSide.class))
 							.build())
+						.option(Option.<PoseVariant>createBuilder()
+							.name(Component.translatable("waylight.config.option.carry_mode"))
+							.description(OptionDescription.of(Component.translatable("waylight.config.option.carry_mode.desc")))
+							.binding(
+								PoseVariant.fromConfig(config.poseMode),
+								() -> PoseVariant.fromConfig(WaylightClient.CONFIG_MANAGER.get().poseMode),
+								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.poseMode = value.configValue)
+							)
+							.controller(option -> EnumControllerBuilder.create(option).enumClass(PoseVariant.class))
+							.build())
 						.build())
 					.group(OptionGroup.createBuilder()
 						.name(Component.translatable("waylight.config.group.behavior"))
@@ -142,6 +152,28 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 
 		public static LanternSide fromConfig(String value) {
 			return "left".equals(value) ? LEFT : RIGHT;
+		}
+
+		@Override
+		public String toString() {
+			return label.getString();
+		}
+	}
+
+	private enum PoseVariant {
+		HIP("hip", Component.translatable("waylight.config.value.pose.hip")),
+		HAND_LEFT("hand_left", Component.translatable("waylight.config.value.pose.hand_left"));
+
+		private final String configValue;
+		private final Component label;
+
+		PoseVariant(String configValue, Component label) {
+			this.configValue = configValue;
+			this.label = label;
+		}
+
+		public static PoseVariant fromConfig(String value) {
+			return "hand_left".equals(value) ? HAND_LEFT : HIP;
 		}
 
 		@Override

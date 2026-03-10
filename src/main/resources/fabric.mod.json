@@ -35,10 +35,10 @@
 		"fabricloader": ">=0.18.4",
 		"minecraft": "~1.21.11",
 		"java": ">=21",
-		"fabric-api": "*"
+		"fabric-api": "*",
+		"lambdynlights": ">=4.9.1+1.21.11"
 	},
 	"suggests": {
-		"lambdynamiclights": "*",
 		"modmenu": "*"
 	}
 }
