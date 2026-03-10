@@ -7,7 +7,10 @@ public record LanternTransform(
 	float translateZ,
 	float rotateX,
 	float rotateY,
-	float rotateZ
+	float rotateZ,
+	float emissionX,
+	float emissionY,
+	float emissionZ
 ) {
 	public enum Attachment {
 		BODY,

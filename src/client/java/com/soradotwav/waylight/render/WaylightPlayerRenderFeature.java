@@ -19,8 +19,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.NonNull;
 
 public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderState, PlayerModel> {
-	private static final LanternTransformResolver TRANSFORM_RESOLVER = new LanternTransformResolver();
-
 	public WaylightPlayerRenderFeature(RenderLayerParent<AvatarRenderState, PlayerModel> renderer) {
 		super(renderer);
 	}
@@ -46,7 +44,7 @@ public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderS
 
 		LanternPoseState poseState = WaylightClient.POSE_CONTROLLER.getPoseState();
 		WaylightConfig config = WaylightClient.CONFIG_MANAGER.get();
-		LanternTransform transform = TRANSFORM_RESOLVER.resolveThirdPerson(lanternState, poseState, config);
+		LanternTransform transform = WaylightClient.TRANSFORM_RESOLVER.resolveThirdPerson(lanternState, poseState, config);
 
 		poseStack.pushPose();
 		applyTransform(poseStack, transform);
