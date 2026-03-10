@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.soradotwav.WaylightClient;
 import com.soradotwav.waylight.config.WaylightConfig;
 import com.soradotwav.waylight.lantern.LanternType;
+import com.soradotwav.waylight.lantern.PoseMode;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
 import net.fabricmc.fabric.api.client.rendering.v1.FabricRenderState;
 import net.minecraft.client.Minecraft;
@@ -44,15 +45,13 @@ public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderS
 
 		LanternPoseState poseState = WaylightClient.POSE_CONTROLLER.getPoseState();
 		WaylightConfig config = WaylightClient.CONFIG_MANAGER.get();
-		float sideSign = "left".equals(config.lanternSide) ? 1.0F : -1.0F;
-		float rotationSideSign = -sideSign;
 
 		poseStack.pushPose();
-		getParentModel().body.translateAndRotate(poseStack);
-		poseStack.translate(0.2F * sideSign, 0.60F + poseState.bob(1.0F) * 0.03F, -0.15F);
-		poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(rotationSideSign * (15.0F + poseState.rollAngle(1.0F))));
-		poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(165.0F + poseState.pitchAngle(1.0F)));
-		poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(rotationSideSign * -35.0F + poseState.yawLag(1.0F) * rotationSideSign));
+		if (lanternState.poseMode() == PoseMode.HAND_LEFT) {
+			applyHandLeftTransform(poseStack, poseState);
+		} else {
+			applyHipTransform(poseStack, poseState, config);
+		}
 		if (config.debugAnchorGizmo) {
 			submitAnchorGizmo(submitNodeCollector, poseStack);
 		}
@@ -60,6 +59,25 @@ public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderS
 		poseStack.translate(-0.5F, -0.65F, -0.5F);
 		submitNodeCollector.submitBlock(poseStack, lanternBlockState, packedLight, OverlayTexture.NO_OVERLAY, avatarRenderState.outlineColor);
 		poseStack.popPose();
+	}
+
+	private void applyHipTransform(PoseStack poseStack, LanternPoseState poseState, WaylightConfig config) {
+		float sideSign = "left".equals(config.lanternSide) ? 1.0F : -1.0F;
+		float rotationSideSign = -sideSign;
+
+		getParentModel().body.translateAndRotate(poseStack);
+		poseStack.translate(0.2F * sideSign, 0.60F + poseState.bob(1.0F) * 0.03F, -0.15F);
+		poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(rotationSideSign * (15.0F + poseState.rollAngle(1.0F))));
+		poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(165.0F + poseState.pitchAngle(1.0F)));
+		poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(rotationSideSign * -35.0F + poseState.yawLag(1.0F) * rotationSideSign));
+	}
+
+	private void applyHandLeftTransform(PoseStack poseStack, LanternPoseState poseState) {
+		getParentModel().leftArm.translateAndRotate(poseStack);
+		poseStack.translate(0.05F, 0.60F, 0.1F);
+		poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(0.0F + poseState.rollAngle(1.0F) * 0.2F));
+		poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(-50.0F + poseState.pitchAngle(1.0F) * 0.2F));
+		poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-10.0F - poseState.yawLag(1.0F) * 0.2F));
 	}
 
 	private static void submitAnchorGizmo(SubmitNodeCollector submitNodeCollector, PoseStack poseStack) {
