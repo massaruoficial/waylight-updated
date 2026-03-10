@@ -32,12 +32,12 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 						.controller(option -> EnumControllerBuilder.create(option).enumClass(LanternVariant.class))
 						.build())
 					.option(Option.<Boolean>createBuilder()
-						.name(Component.translatable("waylight.config.option.stash_underwater"))
-						.description(OptionDescription.of(Component.translatable("waylight.config.option.stash_underwater.desc")))
+						.name(Component.translatable("waylight.config.option.extinguish_underwater"))
+						.description(OptionDescription.of(Component.translatable("waylight.config.option.extinguish_underwater.desc")))
 						.binding(
-							config.stashUnderwater,
-							() -> WaylightClient.CONFIG_MANAGER.get().stashUnderwater,
-							value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.stashUnderwater = value)
+							config.extinguishUnderwater,
+							() -> WaylightClient.CONFIG_MANAGER.get().extinguishUnderwater,
+							value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.extinguishUnderwater = value)
 						)
 						.controller(TickBoxControllerBuilder::create)
 						.build())

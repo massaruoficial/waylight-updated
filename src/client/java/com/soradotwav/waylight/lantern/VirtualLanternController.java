@@ -8,6 +8,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
 public final class VirtualLanternController {
+	private static final float EQUIP_VOLUME = 0.8F;
+	private static final float EQUIP_PITCH_ON = 1.0F;
+	private static final float EQUIP_PITCH_OFF = 0.9F;
+	private static final float EXTINGUISH_VOLUME = 0.2F;
+	private static final float EXTINGUISH_PITCH = 1.1F;
+	private static final float RELIGHT_VOLUME = 0.22F;
+	private static final float RELIGHT_PITCH = 1.25F;
+
 	private final WaylightConfigManager configManager;
 	private final LanternVisibilityRules visibilityRules = new LanternVisibilityRules();
 	private VirtualLanternState currentState = new VirtualLanternState(false, LanternType.NORMAL, PoseMode.HIP, false, false);
@@ -42,7 +50,7 @@ public final class VirtualLanternController {
 			&& previousState.enabled()
 			&& currentState.enabled()
 			&& previousState.lightActive() != currentState.lightActive()) {
-			playLanternSound(player, currentState.lightActive());
+			playTransitionSound(player, previousState, currentState);
 		}
 	}
 
@@ -62,6 +70,17 @@ public final class VirtualLanternController {
 	}
 
 	private static void playLanternSound(LocalPlayer player, boolean active) {
-		player.playSound(SoundEvents.ARMOR_EQUIP_CHAIN.value(), 0.8F, active ? 1.0F : 0.9F);
+		player.playSound(SoundEvents.ARMOR_EQUIP_CHAIN.value(), EQUIP_VOLUME, active ? EQUIP_PITCH_ON : EQUIP_PITCH_OFF);
+	}
+
+	private static void playTransitionSound(LocalPlayer player, VirtualLanternState previousState, VirtualLanternState currentState) {
+		if (previousState.lightActive() && !currentState.lightActive()) {
+			player.playSound(SoundEvents.FIRE_EXTINGUISH, EXTINGUISH_VOLUME, EXTINGUISH_PITCH);
+			return;
+		}
+
+		if (!previousState.lightActive() && currentState.lightActive()) {
+			player.playSound(SoundEvents.FLINTANDSTEEL_USE, RELIGHT_VOLUME, RELIGHT_PITCH);
+		}
 	}
 }

@@ -43,7 +43,7 @@ public final class LanternPoseController {
 		poseState.prevBob = poseState.bob;
 
 		LocalPlayer player = client.player;
-		if (player == null || !lanternState.lightActive()) {
+		if (player == null || !lanternState.enabled()) {
 			decayToRest();
 			return;
 		}
