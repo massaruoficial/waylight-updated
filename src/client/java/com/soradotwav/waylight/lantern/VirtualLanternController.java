@@ -26,11 +26,23 @@ public final class VirtualLanternController {
 
 	public void toggle(Minecraft client) {
 		LocalPlayer player = client.player;
-		if (player == null) {
+		if (player == null || client.level == null) {
 			return;
 		}
 
 		WaylightConfig config = configManager.get();
+		int localBrightness = client.level.getMaxLocalRawBrightness(player.blockPosition());
+
+		if (!config.enabled && config.autoUnequipInBrightness && localBrightness > config.autoLightThreshold) {
+			player.displayClientMessage(Component.translatable("message.waylight.too_bright"), true);
+			return;
+		}
+
+		if (config.enabled && config.autoEquipInDarkness && localBrightness <= config.autoLightThreshold) {
+			player.displayClientMessage(Component.translatable("message.waylight.too_dark"), true);
+			return;
+		}
+
 		config.enabled = !config.enabled;
 		configManager.save();
 
@@ -42,6 +54,8 @@ public final class VirtualLanternController {
 	}
 
 	public void tick(Minecraft client) {
+		applyAutoLanternBehavior(client);
+
 		VirtualLanternState previousState = currentState;
 		currentState = resolveState(client);
 
@@ -67,6 +81,50 @@ public final class VirtualLanternController {
 			LanternType.fromConfig(config.lanternType),
 			PoseMode.fromConfig(config.poseMode)
 		);
+	}
+
+	private void applyAutoLanternBehavior(Minecraft client) {
+		LocalPlayer player = client.player;
+		if (player == null || client.level == null) {
+			return;
+		}
+
+		WaylightConfig config = configManager.get();
+		if (!config.autoEquipInDarkness && !config.autoUnequipInBrightness) {
+			return;
+		}
+
+		int localBrightness = client.level.getMaxLocalRawBrightness(player.blockPosition());
+		boolean tooDark = localBrightness <= config.autoLightThreshold;
+		boolean brightEnough = localBrightness > config.autoLightThreshold;
+		boolean changed = false;
+
+		if (config.autoEquipInDarkness && !config.enabled && tooDark && canAutoEnable(client, config, player)) {
+			config.enabled = true;
+			playLanternSound(player, true);
+			changed = true;
+		} else if (config.autoUnequipInBrightness && config.enabled && brightEnough) {
+			config.enabled = false;
+			playLanternSound(player, false);
+			changed = true;
+		}
+
+		if (changed) {
+			configManager.save();
+		}
+	}
+
+	private boolean canAutoEnable(Minecraft client, WaylightConfig config, LocalPlayer player) {
+		VirtualLanternState resolved = visibilityRules.resolve(
+			player,
+			client,
+			true,
+			LanternType.fromConfig(config.lanternType),
+			PoseMode.fromConfig(config.poseMode)
+		);
+		return !resolved.temporarilySuppressed()
+			&& !resolved.underwaterExtinguished()
+			&& (resolved.lightActive() || resolved.modelVisible());
 	}
 
 	private static void playLanternSound(LocalPlayer player, boolean active) {

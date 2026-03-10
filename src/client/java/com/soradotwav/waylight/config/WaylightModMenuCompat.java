@@ -81,6 +81,39 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 							)
 							.controller(TickBoxControllerBuilder::create)
 							.build())
+						.option(Option.<Boolean>createBuilder()
+							.name(Component.translatable("waylight.config.option.auto_equip_in_darkness"))
+							.description(OptionDescription.of(Component.translatable("waylight.config.option.auto_equip_in_darkness.desc")))
+							.binding(
+								config.autoEquipInDarkness,
+								() -> WaylightClient.CONFIG_MANAGER.get().autoEquipInDarkness,
+								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.autoEquipInDarkness = value)
+							)
+							.controller(TickBoxControllerBuilder::create)
+							.build())
+						.option(Option.<Boolean>createBuilder()
+							.name(Component.translatable("waylight.config.option.auto_unequip_in_brightness"))
+							.description(OptionDescription.of(Component.translatable("waylight.config.option.auto_unequip_in_brightness.desc")))
+							.binding(
+								config.autoUnequipInBrightness,
+								() -> WaylightClient.CONFIG_MANAGER.get().autoUnequipInBrightness,
+								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.autoUnequipInBrightness = value)
+							)
+							.controller(TickBoxControllerBuilder::create)
+							.build())
+						.option(Option.<Integer>createBuilder()
+							.name(Component.translatable("waylight.config.option.auto_light_threshold"))
+							.description(OptionDescription.of(Component.translatable("waylight.config.option.auto_light_threshold.desc")))
+							.binding(
+								config.autoLightThreshold,
+								() -> WaylightClient.CONFIG_MANAGER.get().autoLightThreshold,
+								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.autoLightThreshold = value)
+							)
+							.controller(option -> IntegerSliderControllerBuilder.create(option)
+								.range(0, 15)
+								.step(1)
+								.formatValue(value -> Component.literal(Integer.toString(value)).withStyle(value == 7 ? ChatFormatting.GREEN : ChatFormatting.WHITE)))
+							.build())
 						.option(Option.<Integer>createBuilder()
 							.name(Component.translatable("waylight.config.option.motion_intensity"))
 							.description(OptionDescription.of(Component.translatable("waylight.config.option.motion_intensity.desc")))

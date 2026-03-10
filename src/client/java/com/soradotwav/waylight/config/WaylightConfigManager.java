@@ -64,6 +64,7 @@ public final class WaylightConfigManager {
 			sanitized.lanternSide = "right";
 		}
 
+		sanitized.autoLightThreshold = Mth.clamp(sanitized.autoLightThreshold, 0, 15);
 		sanitized.motionIntensity = Mth.clamp(sanitized.motionIntensity, 25, 200);
 
 		if (!"hip".equals(sanitized.poseMode) && !"hand_left".equals(sanitized.poseMode)) {
