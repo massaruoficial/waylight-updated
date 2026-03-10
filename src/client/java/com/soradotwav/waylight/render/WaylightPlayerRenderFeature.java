@@ -55,7 +55,7 @@ public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderS
 		if (config.debugAnchorGizmo) {
 			submitAnchorGizmo(submitNodeCollector, poseStack);
 		}
-		poseStack.scale(0.36F, 0.36F, 0.36F);
+		poseStack.scale(0.46F, 0.46F, 0.46F);
 		poseStack.translate(-0.5F, -0.65F, -0.5F);
 		submitNodeCollector.submitBlock(poseStack, lanternBlockState, packedLight, OverlayTexture.NO_OVERLAY, avatarRenderState.outlineColor);
 		poseStack.popPose();

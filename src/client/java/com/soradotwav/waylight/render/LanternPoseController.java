@@ -8,6 +8,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 
 public final class LanternPoseController {
+	private static final float HIP_THIRD_PERSON_MOTION_SCALE = 0.8F;
+	private static final float HAND_LEFT_THIRD_PERSON_MOTION_SCALE = 1.2F;
 	private static final float PITCH_STIFFNESS = 0.12F;
 	private static final float ROLL_STIFFNESS = 0.1F;
 	private static final float PITCH_DAMPING = 0.89F;
@@ -64,6 +66,8 @@ public final class LanternPoseController {
 		boolean sprinting = player.isSprinting();
 		boolean crouching = player.isCrouching();
 		boolean firstPerson = client.options.getCameraType() == CameraType.FIRST_PERSON;
+		boolean hipThirdPerson = lanternState.poseMode() == com.soradotwav.waylight.lantern.PoseMode.HIP && !firstPerson;
+		boolean handLeftThirdPerson = lanternState.poseMode() == com.soradotwav.waylight.lantern.PoseMode.HAND_LEFT && !firstPerson;
 
 		lastVelocityX = velocity.x;
 		lastVelocityY = velocity.y;
@@ -72,14 +76,17 @@ public final class LanternPoseController {
 
 		float forwardAcceleration = (float) (-Math.sin(Math.toRadians(player.getYRot())) * accelerationX + Math.cos(Math.toRadians(player.getYRot())) * accelerationZ);
 		float sidewaysAcceleration = (float) (Math.cos(Math.toRadians(player.getYRot())) * accelerationX + Math.sin(Math.toRadians(player.getYRot())) * accelerationZ);
-		float targetBob = (float) Math.sin(player.tickCount * 0.22F) * Mth.clamp((float) horizontalSpeed * 8.0F, 0.0F, 1.3F);
+		float modeMotionScale = hipThirdPerson
+			? HIP_THIRD_PERSON_MOTION_SCALE
+			: handLeftThirdPerson ? HAND_LEFT_THIRD_PERSON_MOTION_SCALE : 1.0F;
+		float targetBob = (float) Math.sin(player.tickCount * 0.22F) * Mth.clamp((float) horizontalSpeed * 8.0F, 0.0F, 1.3F) * modeMotionScale;
 		float motionIntensity = Mth.clamp(WaylightClient.CONFIG_MANAGER.get().motionIntensity / 100.0F, 0.25F, 2.0F);
 		boolean handLeftFirstPerson = lanternState.poseMode() == com.soradotwav.waylight.lantern.PoseMode.HAND_LEFT && firstPerson;
 		float motionMultiplier = sprinting ? SPRINT_MOTION_MULTIPLIER : crouching ? CROUCH_MOTION_MULTIPLIER : 1.0F;
 		if (!onGround) {
 			motionMultiplier *= AIR_MOTION_MULTIPLIER;
 		}
-		motionMultiplier *= motionIntensity;
+		motionMultiplier *= motionIntensity * modeMotionScale;
 		if (handLeftFirstPerson) {
 			motionMultiplier *= HAND_LEFT_MOTION_SCALE;
 		}
@@ -88,7 +95,7 @@ public final class LanternPoseController {
 		float fallPitchTarget = 0.0F;
 
 		if (!onGround && velocity.y < -0.08) {
-			fallPitchTarget = -Mth.clamp((float) (-velocity.y) * FALL_PITCH_BIAS_SCALE * motionIntensity, 0.0F, MAX_FALL_PITCH_TARGET);
+			fallPitchTarget = -Mth.clamp((float) (-velocity.y) * FALL_PITCH_BIAS_SCALE * motionIntensity * modeMotionScale, 0.0F, MAX_FALL_PITCH_TARGET);
 			if (handLeftFirstPerson) {
 				fallPitchTarget *= HAND_LEFT_FALL_SCALE;
 			}
@@ -99,9 +106,9 @@ public final class LanternPoseController {
 		poseState.pitchVelocity += (fallPitchTarget - poseState.pitchAngle) * FALL_PITCH_STIFFNESS;
 
 		if (wasOnGround && !onGround && velocity.y > 0.0) {
-			poseState.pitchVelocity += JUMP_PITCH_IMPULSE * motionIntensity * (handLeftFirstPerson ? HAND_LEFT_MOTION_SCALE : 1.0F);
+			poseState.pitchVelocity += JUMP_PITCH_IMPULSE * motionIntensity * modeMotionScale * (handLeftFirstPerson ? HAND_LEFT_MOTION_SCALE : 1.0F);
 		} else if (!wasOnGround && onGround && lastVelocityY < -0.08) {
-			poseState.pitchVelocity += Math.min((float) (-lastVelocityY * LANDING_PITCH_IMPULSE_SCALE * motionIntensity * (handLeftFirstPerson ? HAND_LEFT_FALL_SCALE : 1.0F)), MAX_LANDING_PITCH_IMPULSE);
+			poseState.pitchVelocity += Math.min((float) (-lastVelocityY * LANDING_PITCH_IMPULSE_SCALE * motionIntensity * modeMotionScale * (handLeftFirstPerson ? HAND_LEFT_FALL_SCALE : 1.0F)), MAX_LANDING_PITCH_IMPULSE);
 			poseState.rollVelocity *= LANDING_ROLL_DAMPING;
 		}
 
