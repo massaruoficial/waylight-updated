@@ -1,19 +1,27 @@
 package com.soradotwav.waylight.render;
 
 public final class LanternPoseState {
-	public float swayX;
-	public float swayZ;
+	public float pitchAngle;
+	public float pitchVelocity;
+	public float rollAngle;
+	public float rollVelocity;
+	public float yawLag;
 	public float bob;
-	public float prevSwayX;
-	public float prevSwayZ;
+	public float prevPitchAngle;
+	public float prevRollAngle;
+	public float prevYawLag;
 	public float prevBob;
 
-	public float swayX(float tickDelta) {
-		return lerp(tickDelta, prevSwayX, swayX);
+	public float pitchAngle(float tickDelta) {
+		return lerp(tickDelta, prevPitchAngle, pitchAngle);
 	}
 
-	public float swayZ(float tickDelta) {
-		return lerp(tickDelta, prevSwayZ, swayZ);
+	public float rollAngle(float tickDelta) {
+		return lerp(tickDelta, prevRollAngle, rollAngle);
+	}
+
+	public float yawLag(float tickDelta) {
+		return lerp(tickDelta, prevYawLag, yawLag);
 	}
 
 	public float bob(float tickDelta) {

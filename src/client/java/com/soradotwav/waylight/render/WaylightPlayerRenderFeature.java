@@ -50,9 +50,9 @@ public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderS
 		poseStack.pushPose();
 		getParentModel().body.translateAndRotate(poseStack);
 		poseStack.translate(-0.2F, 0.60F + poseState.bob(1.0F) * 0.03F, -0.15F);
-		poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(15.0F + poseState.swayX(1.0F)));
-		poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(165.0F + poseState.swayZ(1.0F)));
-		poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-35.0F));
+		poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(15.0F + poseState.rollAngle(1.0F)));
+		poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(165.0F + poseState.pitchAngle(1.0F)));
+		poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-35.0F + poseState.yawLag(1.0F)));
 		if (config.debugAnchorGizmo) {
 			submitAnchorGizmo(submitNodeCollector, poseStack);
 		}
