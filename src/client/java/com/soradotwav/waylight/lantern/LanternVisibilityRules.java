@@ -10,7 +10,7 @@ public final class LanternVisibilityRules {
 			return new VirtualLanternState(enabled, lanternType, poseMode, false, false);
 		}
 
-		if (player.isSwimming()) {
+		if (player.isUnderWater()) {
 			return new VirtualLanternState(true, lanternType, poseMode, false, false);
 		}
 

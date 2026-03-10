@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 public final class VirtualLanternController {
 	private final WaylightConfigManager configManager;
 	private final LanternVisibilityRules visibilityRules = new LanternVisibilityRules();
+	private VirtualLanternState currentState = new VirtualLanternState(false, LanternType.NORMAL, PoseMode.HIP, false, false);
 
 	public VirtualLanternController(WaylightConfigManager configManager) {
 		this.configManager = configManager;
@@ -25,14 +26,31 @@ public final class VirtualLanternController {
 		config.enabled = !config.enabled;
 		configManager.save();
 
-		player.playSound(SoundEvents.ARMOR_EQUIP_CHAIN.value(), 0.8F, config.enabled ? 1.0F : 0.9F);
+		playLanternSound(player, config.enabled);
 		player.displayClientMessage(
 			Component.translatable(config.enabled ? "message.waylight.lantern_on" : "message.waylight.lantern_off"),
 			true
 		);
 	}
 
-	public VirtualLanternState getState(Minecraft client) {
+	public void tick(Minecraft client) {
+		VirtualLanternState previousState = currentState;
+		currentState = resolveState(client);
+
+		LocalPlayer player = client.player;
+		if (player != null
+			&& previousState.enabled()
+			&& currentState.enabled()
+			&& previousState.lightActive() != currentState.lightActive()) {
+			playLanternSound(player, currentState.lightActive());
+		}
+	}
+
+	public VirtualLanternState getState() {
+		return currentState;
+	}
+
+	private VirtualLanternState resolveState(Minecraft client) {
 		WaylightConfig config = configManager.get();
 		return visibilityRules.resolve(
 			client.player,
@@ -41,5 +59,9 @@ public final class VirtualLanternController {
 			LanternType.fromConfig(config.lanternType),
 			PoseMode.fromConfig(config.poseMode)
 		);
+	}
+
+	private static void playLanternSound(LocalPlayer player, boolean active) {
+		player.playSound(SoundEvents.ARMOR_EQUIP_CHAIN.value(), 0.8F, active ? 1.0F : 0.9F);
 	}
 }

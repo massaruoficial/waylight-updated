@@ -31,7 +31,7 @@ public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderS
 			return;
 		}
 
-		VirtualLanternState lanternState = WaylightClient.LANTERN_CONTROLLER.getState(Minecraft.getInstance());
+		VirtualLanternState lanternState = WaylightClient.LANTERN_CONTROLLER.getState();
 		if (!lanternState.modelVisible()) {
 			return;
 		}
