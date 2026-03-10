@@ -1,19 +1,9 @@
 package com.soradotwav.waylight.lantern;
 
 public enum PoseMode {
-	HIP("hip");
+	HIP;
 
-	private final String configValue;
-
-	PoseMode(String configValue) {
-		this.configValue = configValue;
-	}
-
-	public String configValue() {
-		return configValue;
-	}
-
-	public static PoseMode fromConfig(String value) {
+	public static PoseMode fromConfig(String ignored) {
 		return HIP;
 	}
 }

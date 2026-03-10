@@ -1,6 +1,7 @@
 package com.soradotwav.waylight.render;
 
 import com.soradotwav.waylight.lantern.VirtualLanternState;
+import com.soradotwav.WaylightClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
@@ -66,16 +67,18 @@ public final class LanternPoseController {
 		float forwardAcceleration = (float) (-Math.sin(Math.toRadians(player.getYRot())) * accelerationX + Math.cos(Math.toRadians(player.getYRot())) * accelerationZ);
 		float sidewaysAcceleration = (float) (Math.cos(Math.toRadians(player.getYRot())) * accelerationX + Math.sin(Math.toRadians(player.getYRot())) * accelerationZ);
 		float targetBob = (float) Math.sin(player.tickCount * 0.22F) * Mth.clamp((float) horizontalSpeed * 8.0F, 0.0F, 1.3F);
+		float motionIntensity = Math.clamp(WaylightClient.CONFIG_MANAGER.get().motionIntensity / 100.0F, 0.25F, 2.0F);
 		float motionMultiplier = sprinting ? SPRINT_MOTION_MULTIPLIER : crouching ? CROUCH_MOTION_MULTIPLIER : 1.0F;
 		if (!onGround) {
 			motionMultiplier *= AIR_MOTION_MULTIPLIER;
 		}
+		motionMultiplier *= motionIntensity;
 		float pitchDamping = crouching ? PITCH_DAMPING + CROUCH_DAMPING_BONUS : PITCH_DAMPING;
 		float rollDamping = crouching ? ROLL_DAMPING + CROUCH_DAMPING_BONUS : ROLL_DAMPING;
 		float fallPitchTarget = 0.0F;
 
 		if (!onGround && velocity.y < -0.08) {
-			fallPitchTarget = -Mth.clamp((float) (-velocity.y) * FALL_PITCH_BIAS_SCALE, 0.0F, MAX_FALL_PITCH_TARGET);
+			fallPitchTarget = -Mth.clamp((float) (-velocity.y) * FALL_PITCH_BIAS_SCALE * motionIntensity, 0.0F, MAX_FALL_PITCH_TARGET);
 		}
 
 		poseState.pitchVelocity += ((-forwardAcceleration * PITCH_ACCELERATION_SCALE) + ((float) accelerationY * -14.0F)) * motionMultiplier;
@@ -83,9 +86,9 @@ public final class LanternPoseController {
 		poseState.pitchVelocity += (fallPitchTarget - poseState.pitchAngle) * FALL_PITCH_STIFFNESS;
 
 		if (wasOnGround && !onGround && velocity.y > 0.0) {
-			poseState.pitchVelocity += JUMP_PITCH_IMPULSE;
+			poseState.pitchVelocity += JUMP_PITCH_IMPULSE * motionIntensity;
 		} else if (!wasOnGround && onGround && lastVelocityY < -0.08) {
-			poseState.pitchVelocity += Math.min((float) (-lastVelocityY * LANDING_PITCH_IMPULSE_SCALE), MAX_LANDING_PITCH_IMPULSE);
+			poseState.pitchVelocity += Math.min((float) (-lastVelocityY * LANDING_PITCH_IMPULSE_SCALE * motionIntensity), MAX_LANDING_PITCH_IMPULSE);
 			poseState.rollVelocity *= LANDING_ROLL_DAMPING;
 		}
 

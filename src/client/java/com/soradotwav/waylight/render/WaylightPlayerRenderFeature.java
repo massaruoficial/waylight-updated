@@ -44,13 +44,15 @@ public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderS
 
 		LanternPoseState poseState = WaylightClient.POSE_CONTROLLER.getPoseState();
 		WaylightConfig config = WaylightClient.CONFIG_MANAGER.get();
+		float sideSign = "left".equals(config.lanternSide) ? 1.0F : -1.0F;
+		float rotationSideSign = -sideSign;
 
 		poseStack.pushPose();
 		getParentModel().body.translateAndRotate(poseStack);
-		poseStack.translate(-0.2F, 0.60F + poseState.bob(1.0F) * 0.03F, -0.15F);
-		poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(15.0F + poseState.rollAngle(1.0F)));
+		poseStack.translate(0.2F * sideSign, 0.60F + poseState.bob(1.0F) * 0.03F, -0.15F);
+		poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(rotationSideSign * (15.0F + poseState.rollAngle(1.0F))));
 		poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(165.0F + poseState.pitchAngle(1.0F)));
-		poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-35.0F + poseState.yawLag(1.0F)));
+		poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(rotationSideSign * -35.0F + poseState.yawLag(1.0F) * rotationSideSign));
 		if (config.debugAnchorGizmo) {
 			submitAnchorGizmo(submitNodeCollector, poseStack);
 		}

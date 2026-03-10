@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.soradotwav.Waylight;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.util.Mth;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -20,7 +21,9 @@ public final class WaylightConfigManager {
 
 	public WaylightConfig load() {
 		if (Files.notExists(CONFIG_PATH)) {
-			return saveDefaults();
+			config = new WaylightConfig();
+			save();
+			return config;
 		}
 
 		try (Reader reader = Files.newBufferedReader(CONFIG_PATH)) {
@@ -50,18 +53,18 @@ public final class WaylightConfigManager {
 		}
 	}
 
-	private WaylightConfig saveDefaults() {
-		config = new WaylightConfig();
-		save();
-		return config;
-	}
-
 	private static WaylightConfig sanitize(WaylightConfig loaded) {
 		WaylightConfig sanitized = loaded == null ? new WaylightConfig() : loaded;
 
 		if (!"normal".equals(sanitized.lanternType) && !"soul".equals(sanitized.lanternType)) {
 			sanitized.lanternType = "normal";
 		}
+
+		if (!"right".equals(sanitized.lanternSide) && !"left".equals(sanitized.lanternSide)) {
+			sanitized.lanternSide = "right";
+		}
+
+		sanitized.motionIntensity = Mth.clamp(sanitized.motionIntensity, 25, 200);
 
 		if (!"hip".equals(sanitized.poseMode)) {
 			sanitized.poseMode = "hip";
