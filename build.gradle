@@ -12,6 +12,12 @@ base {
 
 repositories {
 	maven {
+		url = uri("https://maven.isxander.dev/releases")
+	}
+	maven {
+		url = uri("https://maven.terraformersmc.com")
+	}
+	maven {
 		url = uri("https://maven.gegy.dev")
 	}
 }
@@ -36,6 +42,14 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	modImplementation("dev.isxander:yet-another-config-lib:${project.yacl_version}") {
+		exclude group: "net.fabricmc.fabric-api", module: "fabric-api"
+	}
+	include "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+
+	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modRuntimeOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 
 	modImplementation "dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${project.lambdynamiclights_version}"
 }

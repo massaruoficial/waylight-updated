@@ -10,7 +10,7 @@ public final class LanternVisibilityRules {
 			return new VirtualLanternState(enabled, lanternType, poseMode, false, false);
 		}
 
-		if (player.isUnderWater()) {
+		if (com.soradotwav.WaylightClient.CONFIG_MANAGER.get().stashUnderwater && player.isUnderWater()) {
 			return new VirtualLanternState(true, lanternType, poseMode, false, false);
 		}
 

@@ -69,4 +69,9 @@ public final class WaylightConfigManager {
 
 		return sanitized;
 	}
+
+	public void update(java.util.function.Consumer<WaylightConfig> updater) {
+		updater.accept(config);
+		save();
+	}
 }

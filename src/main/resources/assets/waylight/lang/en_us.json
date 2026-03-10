@@ -2,5 +2,16 @@
   "key.category.waylight.general": "Waylight",
   "key.waylight.toggle_lantern": "Toggle Lantern",
   "message.waylight.lantern_on": "Lantern On",
-  "message.waylight.lantern_off": "Lantern Off"
+  "message.waylight.lantern_off": "Lantern Off",
+  "waylight.config.title": "Waylight",
+  "waylight.config.category.general": "General",
+  "waylight.config.category.debug": "Debug",
+  "waylight.config.option.lantern_type": "Lantern Type",
+  "waylight.config.option.lantern_type.desc": "Choose which vanilla lantern model Waylight renders on your hip.",
+  "waylight.config.option.stash_underwater": "Stash Underwater",
+  "waylight.config.option.stash_underwater.desc": "Temporarily hide the lantern and disable its light while fully submerged.",
+  "waylight.config.option.debug_anchor_gizmo": "Debug Anchor Gizmo",
+  "waylight.config.option.debug_anchor_gizmo.desc": "Render a small RGB gizmo at the lantern anchor for transform tuning.",
+  "waylight.config.value.lantern.normal": "Lantern",
+  "waylight.config.value.lantern.soul": "Soul Lantern"
 }
