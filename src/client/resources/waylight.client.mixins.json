@@ -2,7 +2,9 @@
 	"required": true,
 	"package": "com.soradotwav.mixin.client",
 	"compatibilityLevel": "JAVA_21",
-	"client": [],
+	"client": [
+		"LivingEntityRendererMixin"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}
