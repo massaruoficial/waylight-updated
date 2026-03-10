@@ -1,10 +1,14 @@
 package com.soradotwav;
 
 import net.fabricmc.api.ClientModInitializer;
+import com.soradotwav.waylight.config.WaylightConfigManager;
 
 public class WaylightClient implements ClientModInitializer {
+	public static final WaylightConfigManager CONFIG_MANAGER = new WaylightConfigManager();
+
 	@Override
 	public void onInitializeClient() {
-		// This entrypoint is suitable for setting up client-specific logic, such as rendering.
+		CONFIG_MANAGER.load();
+		Waylight.LOGGER.info("Initializing {} client", Waylight.MOD_ID);
 	}
 }
