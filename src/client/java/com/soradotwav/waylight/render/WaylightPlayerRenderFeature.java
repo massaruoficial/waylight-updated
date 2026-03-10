@@ -19,15 +19,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.NonNull;
 
 public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderState, PlayerModel> {
-	private static final boolean ALWAYS_VISIBLE = true;
-
 	public WaylightPlayerRenderFeature(RenderLayerParent<AvatarRenderState, PlayerModel> renderer) {
 		super(renderer);
 	}
 
 	@Override
 	public void submit(@NonNull PoseStack poseStack, @NonNull SubmitNodeCollector submitNodeCollector, int packedLight, AvatarRenderState avatarRenderState, float limbAngle, float limbDistance) {
-		if (!ALWAYS_VISIBLE && (!(avatarRenderState instanceof FabricRenderState fabricRenderState) || !Boolean.TRUE.equals(fabricRenderState.getData(WaylightRenderHooks.LOCAL_PLAYER_RENDER_STATE)))) {
+		if (!(avatarRenderState instanceof FabricRenderState fabricRenderState) || !Boolean.TRUE.equals(fabricRenderState.getData(WaylightRenderHooks.LOCAL_PLAYER_RENDER_STATE))) {
 			return;
 		}
 
