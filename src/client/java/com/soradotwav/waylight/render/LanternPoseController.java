@@ -2,6 +2,7 @@ package com.soradotwav.waylight.render;
 
 import com.soradotwav.waylight.lantern.VirtualLanternState;
 import com.soradotwav.WaylightClient;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
@@ -29,6 +30,10 @@ public final class LanternPoseController {
 	private static final float LANDING_PITCH_IMPULSE_SCALE = 12.0F;
 	private static final float MAX_LANDING_PITCH_IMPULSE = 12.5F;
 	private static final float LANDING_ROLL_DAMPING = 0.85F;
+	private static final float HAND_LEFT_MOTION_SCALE = 0.7F;
+	private static final float HAND_LEFT_FALL_SCALE = 0.6F;
+	private static final float HAND_LEFT_YAW_SCALE = 1.0F;
+	private static final float HAND_LEFT_BOB_SCALE = 0.6F;
 
 	private final LanternPoseState poseState = new LanternPoseState();
 	private float lastYaw;
@@ -58,6 +63,7 @@ public final class LanternPoseController {
 		boolean onGround = player.onGround();
 		boolean sprinting = player.isSprinting();
 		boolean crouching = player.isCrouching();
+		boolean firstPerson = client.options.getCameraType() == CameraType.FIRST_PERSON;
 
 		lastVelocityX = velocity.x;
 		lastVelocityY = velocity.y;
@@ -67,18 +73,25 @@ public final class LanternPoseController {
 		float forwardAcceleration = (float) (-Math.sin(Math.toRadians(player.getYRot())) * accelerationX + Math.cos(Math.toRadians(player.getYRot())) * accelerationZ);
 		float sidewaysAcceleration = (float) (Math.cos(Math.toRadians(player.getYRot())) * accelerationX + Math.sin(Math.toRadians(player.getYRot())) * accelerationZ);
 		float targetBob = (float) Math.sin(player.tickCount * 0.22F) * Mth.clamp((float) horizontalSpeed * 8.0F, 0.0F, 1.3F);
-		float motionIntensity = Math.clamp(WaylightClient.CONFIG_MANAGER.get().motionIntensity / 100.0F, 0.25F, 2.0F);
+		float motionIntensity = Mth.clamp(WaylightClient.CONFIG_MANAGER.get().motionIntensity / 100.0F, 0.25F, 2.0F);
+		boolean handLeftFirstPerson = lanternState.poseMode() == com.soradotwav.waylight.lantern.PoseMode.HAND_LEFT && firstPerson;
 		float motionMultiplier = sprinting ? SPRINT_MOTION_MULTIPLIER : crouching ? CROUCH_MOTION_MULTIPLIER : 1.0F;
 		if (!onGround) {
 			motionMultiplier *= AIR_MOTION_MULTIPLIER;
 		}
 		motionMultiplier *= motionIntensity;
+		if (handLeftFirstPerson) {
+			motionMultiplier *= HAND_LEFT_MOTION_SCALE;
+		}
 		float pitchDamping = crouching ? PITCH_DAMPING + CROUCH_DAMPING_BONUS : PITCH_DAMPING;
 		float rollDamping = crouching ? ROLL_DAMPING + CROUCH_DAMPING_BONUS : ROLL_DAMPING;
 		float fallPitchTarget = 0.0F;
 
 		if (!onGround && velocity.y < -0.08) {
 			fallPitchTarget = -Mth.clamp((float) (-velocity.y) * FALL_PITCH_BIAS_SCALE * motionIntensity, 0.0F, MAX_FALL_PITCH_TARGET);
+			if (handLeftFirstPerson) {
+				fallPitchTarget *= HAND_LEFT_FALL_SCALE;
+			}
 		}
 
 		poseState.pitchVelocity += ((-forwardAcceleration * PITCH_ACCELERATION_SCALE) + ((float) accelerationY * -14.0F)) * motionMultiplier;
@@ -86,9 +99,9 @@ public final class LanternPoseController {
 		poseState.pitchVelocity += (fallPitchTarget - poseState.pitchAngle) * FALL_PITCH_STIFFNESS;
 
 		if (wasOnGround && !onGround && velocity.y > 0.0) {
-			poseState.pitchVelocity += JUMP_PITCH_IMPULSE * motionIntensity;
+			poseState.pitchVelocity += JUMP_PITCH_IMPULSE * motionIntensity * (handLeftFirstPerson ? HAND_LEFT_MOTION_SCALE : 1.0F);
 		} else if (!wasOnGround && onGround && lastVelocityY < -0.08) {
-			poseState.pitchVelocity += Math.min((float) (-lastVelocityY * LANDING_PITCH_IMPULSE_SCALE * motionIntensity), MAX_LANDING_PITCH_IMPULSE);
+			poseState.pitchVelocity += Math.min((float) (-lastVelocityY * LANDING_PITCH_IMPULSE_SCALE * motionIntensity * (handLeftFirstPerson ? HAND_LEFT_FALL_SCALE : 1.0F)), MAX_LANDING_PITCH_IMPULSE);
 			poseState.rollVelocity *= LANDING_ROLL_DAMPING;
 		}
 
@@ -104,6 +117,12 @@ public final class LanternPoseController {
 		poseState.rollAngle = Mth.clamp(poseState.rollAngle + poseState.rollVelocity, -MAX_ROLL, MAX_ROLL);
 		poseState.yawLag = Mth.clamp((poseState.yawLag + yawDelta * 0.18F) * YAW_LAG_DAMPING, -MAX_YAW_LAG, MAX_YAW_LAG);
 		poseState.bob = Mth.lerp(0.22F, poseState.bob, targetBob);
+		if (handLeftFirstPerson) {
+			poseState.pitchAngle *= HAND_LEFT_MOTION_SCALE;
+			poseState.rollAngle *= HAND_LEFT_MOTION_SCALE;
+			poseState.yawLag *= HAND_LEFT_YAW_SCALE;
+			poseState.bob *= HAND_LEFT_BOB_SCALE;
+		}
 	}
 
 	public LanternPoseState getPoseState() {

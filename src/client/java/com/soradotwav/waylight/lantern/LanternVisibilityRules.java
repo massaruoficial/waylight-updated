@@ -18,11 +18,12 @@ public final class LanternVisibilityRules {
 
 		boolean firstPersonLight = com.soradotwav.WaylightClient.CONFIG_MANAGER.get().firstPersonLight;
 		boolean lightActive = !firstPerson || firstPersonLight;
+		boolean modelVisible = poseMode == PoseMode.HAND_LEFT || !firstPerson;
 
 		if (com.soradotwav.WaylightClient.CONFIG_MANAGER.get().extinguishUnderwater && player.isUnderWater()) {
-			return new VirtualLanternState(true, lanternType, poseMode, false, !firstPerson, false, true);
+			return new VirtualLanternState(true, lanternType, poseMode, false, modelVisible, false, true);
 		}
 
-		return new VirtualLanternState(true, lanternType, poseMode, lightActive, !firstPerson, false, false);
+		return new VirtualLanternState(true, lanternType, poseMode, lightActive, modelVisible, false, false);
 	}
 }

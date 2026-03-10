@@ -3,6 +3,7 @@
 	"package": "com.soradotwav.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
+		"ItemInHandRendererMixin",
 		"LivingEntityRendererMixin",
 		"PlayerModelMixin"
 	],
