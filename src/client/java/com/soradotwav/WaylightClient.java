@@ -26,7 +26,7 @@ public class WaylightClient implements ClientModInitializer {
         WaylightRenderHooks.register();
 
         KeyMapping toggleLanternKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key.waylight.toggle_lantern", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_L, WAYLIGHT_KEY_CATEGORY));
+                "key.waylight.toggle_lantern", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, WAYLIGHT_KEY_CATEGORY));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             RUNTIME.lanternController().tick(client);

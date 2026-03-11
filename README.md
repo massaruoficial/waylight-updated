@@ -19,7 +19,7 @@ If you encounter any issues, please [report them here](https://github.com/sorado
 
 ### Controls
 
-- `L`: Toggle lantern on/off
+- `G`: Toggle lantern on/off
 
 ### Config Highlights
 
