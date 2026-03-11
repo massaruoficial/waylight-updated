@@ -2,8 +2,6 @@ package com.soradotwav.waylight.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.soradotwav.WaylightClient;
-import com.soradotwav.waylight.config.WaylightConfig;
-import com.soradotwav.waylight.lantern.LanternType;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
 import net.fabricmc.fabric.api.client.rendering.v1.FabricRenderState;
 import net.minecraft.client.Minecraft;
@@ -14,7 +12,6 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.NonNull;
 
@@ -29,7 +26,7 @@ public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderS
 			return;
 		}
 
-		VirtualLanternState lanternState = WaylightClient.LANTERN_CONTROLLER.getState();
+		VirtualLanternState lanternState = WaylightClient.runtime().lanternController().getState();
 		if (!lanternState.modelVisible()) {
 			return;
 		}
@@ -38,18 +35,13 @@ public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderS
 			return;
 		}
 
-		BlockState lanternBlockState = lanternState.lanternType() == LanternType.SOUL
-			? Blocks.SOUL_LANTERN.defaultBlockState()
-			: Blocks.LANTERN.defaultBlockState();
-
-		LanternPoseState poseState = WaylightClient.POSE_CONTROLLER.getPoseState();
-		WaylightConfig config = WaylightClient.CONFIG_MANAGER.get();
-		LanternRig rig = WaylightClient.RIG_RESOLVER.resolveThirdPerson(lanternState, poseState);
-		LanternTransform transform = rig.transform();
+		BlockState lanternBlockState = WaylightClient.runtime().rigResolver().lanternBlockState(lanternState.lanternType());
+		LanternPoseController.PoseState poseState = WaylightClient.runtime().poseController().getPoseState();
+		LanternRigResolver.Transform transform = WaylightClient.runtime().rigResolver().resolveThirdPerson(lanternState, poseState);
 
 		poseStack.pushPose();
 		applyTransform(poseStack, transform);
-		if (config.debugAnchorGizmo) {
+		if (WaylightClient.runtime().configManager().get().debugAnchorGizmo) {
 			submitAnchorGizmo(submitNodeCollector, poseStack);
 		}
 		poseStack.scale(0.46F, 0.46F, 0.46F);
@@ -58,8 +50,8 @@ public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderS
 		poseStack.popPose();
 	}
 
-	private void applyTransform(PoseStack poseStack, LanternTransform transform) {
-		if (transform.attachment() == LanternTransform.Attachment.LEFT_ARM) {
+	private void applyTransform(PoseStack poseStack, LanternRigResolver.Transform transform) {
+		if (transform.attachment() == LanternRigResolver.Attachment.LEFT_ARM) {
 			getParentModel().leftArm.translateAndRotate(poseStack);
 		} else {
 			getParentModel().body.translateAndRotate(poseStack);

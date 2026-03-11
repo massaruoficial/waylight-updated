@@ -1,20 +1,31 @@
-package com.soradotwav.waylight.light;
+package com.soradotwav.waylight.integration;
 
 import com.soradotwav.Waylight;
-import com.soradotwav.WaylightClient;
+import com.soradotwav.waylight.lantern.VirtualLanternController;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
-import com.soradotwav.waylight.render.LanternRig;
+import com.soradotwav.waylight.render.LanternPoseController;
+import com.soradotwav.waylight.render.LanternRigResolver;
 import dev.lambdaurora.lambdynlights.api.behavior.DynamicLightBehavior;
 import dev.lambdaurora.lambdynlights.api.behavior.DynamicLightBehaviorManager;
-import org.joml.Vector3d;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import org.joml.Vector3d;
 import org.jspecify.annotations.NonNull;
 
-public final class LambDynamicLightsAdapter implements VirtualLightSource {
-	private final WaylightLanternBehavior behavior = new WaylightLanternBehavior();
+public final class LambDynamicLightsAdapter {
+	private static final int LUMINANCE = 15;
+
+	private final WaylightLanternBehavior behavior;
 	private boolean registered;
+
+	public LambDynamicLightsAdapter(
+		VirtualLanternController lanternController,
+		LanternPoseController poseController,
+		LanternRigResolver rigResolver
+	) {
+		this.behavior = new WaylightLanternBehavior(lanternController, poseController, rigResolver);
+	}
 
 	public void tick(Minecraft client) {
 		if (!registered) {
@@ -43,28 +54,41 @@ public final class LambDynamicLightsAdapter implements VirtualLightSource {
 	}
 
 	private static final class WaylightLanternBehavior implements DynamicLightBehavior {
+		private final VirtualLanternController lanternController;
+		private final LanternPoseController poseController;
+		private final LanternRigResolver rigResolver;
 		private final Vector3d position = new Vector3d();
 		private final Vector3d previousPosition = new Vector3d(Double.NaN, Double.NaN, Double.NaN);
 		private int luminance;
 		private int previousLuminance = -1;
 		private boolean removed;
 
+		private WaylightLanternBehavior(
+			VirtualLanternController lanternController,
+			LanternPoseController poseController,
+			LanternRigResolver rigResolver
+		) {
+			this.lanternController = lanternController;
+			this.poseController = poseController;
+			this.rigResolver = rigResolver;
+		}
+
 		void update(Minecraft client) {
 			LocalPlayer player = client.player;
-			if (player == null || client.level == null || WaylightClient.LANTERN_CONTROLLER == null) {
+			if (player == null || client.level == null) {
 				luminance = 0;
 				removed = false;
 				return;
 			}
 
-			VirtualLanternState state = WaylightClient.LANTERN_CONTROLLER.getState();
-			luminance = state.lightActive() ? VirtualLightSource.LUMINANCE : 0;
+			VirtualLanternState state = lanternController.getState();
+			luminance = state.lightActive() ? LUMINANCE : 0;
 			if (luminance <= 0) {
 				return;
 			}
 
-			LanternRig rig = WaylightClient.RIG_RESOLVER.resolve(state, WaylightClient.POSE_CONTROLLER.getPoseState());
-			WaylightClient.RIG_RESOLVER.resolveWorldLightCore(player, rig, position);
+			LanternRigResolver.Transform transform = rigResolver.resolve(state, poseController.getPoseState());
+			rigResolver.resolveWorldLightCore(player, transform, position);
 		}
 
 		@Override

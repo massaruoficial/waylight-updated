@@ -2,6 +2,7 @@ package com.soradotwav.waylight.lantern;
 
 import com.soradotwav.waylight.config.WaylightConfig;
 import com.soradotwav.waylight.config.WaylightConfigManager;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -17,7 +18,6 @@ public final class VirtualLanternController {
 	private static final float RELIGHT_PITCH = 1.25F;
 
 	private final WaylightConfigManager configManager;
-	private final LanternVisibilityRules visibilityRules = new LanternVisibilityRules();
 	private VirtualLanternState currentState = new VirtualLanternState(false, LanternType.NORMAL, LanternPosition.RIGHT_HIP, false, false, false, false);
 
 	public VirtualLanternController(WaylightConfigManager configManager) {
@@ -45,12 +45,8 @@ public final class VirtualLanternController {
 
 		config.enabled = !config.enabled;
 		configManager.save();
-
 		playLanternSound(player, config.enabled);
-		player.displayClientMessage(
-			Component.translatable(config.enabled ? "message.waylight.lantern_on" : "message.waylight.lantern_off"),
-			true
-		);
+		player.displayClientMessage(Component.translatable(config.enabled ? "message.waylight.lantern_on" : "message.waylight.lantern_off"), true);
 	}
 
 	public void tick(Minecraft client) {
@@ -60,10 +56,7 @@ public final class VirtualLanternController {
 		currentState = resolveState(client);
 
 		LocalPlayer player = client.player;
-		if (player != null
-			&& previousState.enabled()
-			&& currentState.enabled()
-			&& hasTransition(previousState, currentState)) {
+		if (player != null && previousState.enabled() && currentState.enabled() && hasTransition(previousState, currentState)) {
 			playTransitionSound(player, previousState, currentState);
 		}
 	}
@@ -74,13 +67,29 @@ public final class VirtualLanternController {
 
 	private VirtualLanternState resolveState(Minecraft client) {
 		WaylightConfig config = configManager.get();
-		return visibilityRules.resolve(
-			client.player,
-			client,
-			config.enabled,
-			LanternType.fromConfig(config.lanternType),
-			LanternPosition.fromConfig(config.lanternPosition)
-		);
+		return resolveState(client, config, config.enabled);
+	}
+
+	private VirtualLanternState resolveState(Minecraft client, WaylightConfig config, boolean enabled) {
+		LocalPlayer player = client.player;
+		boolean firstPerson = client.options.getCameraType() == CameraType.FIRST_PERSON;
+
+		if (!enabled || player == null || !player.isAlive() || player.isRemoved()) {
+			return new VirtualLanternState(enabled, config.lanternType, config.lanternPosition, false, false, false, false);
+		}
+
+		if (config.lanternPosition.isHandHeld() && (player.isSwimming() || !player.getOffhandItem().isEmpty())) {
+			return new VirtualLanternState(true, config.lanternType, config.lanternPosition, false, false, true, false);
+		}
+
+		boolean lightActive = !firstPerson || config.firstPersonLight;
+		boolean modelVisible = config.lanternPosition.isHandHeld() || !firstPerson;
+
+		if (config.extinguishUnderwater && player.isUnderWater()) {
+			return new VirtualLanternState(true, config.lanternType, config.lanternPosition, false, modelVisible, false, true);
+		}
+
+		return new VirtualLanternState(true, config.lanternType, config.lanternPosition, lightActive, modelVisible, false, false);
 	}
 
 	private void applyAutoLanternBehavior(Minecraft client) {
@@ -115,16 +124,12 @@ public final class VirtualLanternController {
 	}
 
 	private boolean canAutoEnable(Minecraft client, WaylightConfig config, LocalPlayer player) {
-		VirtualLanternState resolved = visibilityRules.resolve(
-			player,
-			client,
-			true,
-			LanternType.fromConfig(config.lanternType),
-			LanternPosition.fromConfig(config.lanternPosition)
-		);
+		VirtualLanternState resolved = resolveState(client, config, true);
 		return !resolved.temporarilySuppressed()
 			&& !resolved.underwaterExtinguished()
-			&& (resolved.lightActive() || resolved.modelVisible());
+			&& (resolved.lightActive() || resolved.modelVisible())
+			&& player.isAlive()
+			&& !player.isRemoved();
 	}
 
 	private static void playLanternSound(LocalPlayer player, boolean active) {

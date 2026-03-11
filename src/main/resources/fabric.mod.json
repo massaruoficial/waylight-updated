@@ -21,7 +21,7 @@
 			"com.soradotwav.WaylightClient"
 		],
 		"modmenu": [
-			"com.soradotwav.waylight.config.WaylightModMenuCompat"
+			"com.soradotwav.waylight.integration.WaylightModMenuCompat"
 		]
 	},
 	"mixins": [

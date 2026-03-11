@@ -3,30 +3,21 @@ package com.soradotwav.mixin.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.soradotwav.WaylightClient;
-import com.soradotwav.waylight.config.WaylightConfig;
-import com.soradotwav.waylight.lantern.LanternType;
 import com.soradotwav.waylight.lantern.LanternPosition;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
-import com.soradotwav.waylight.render.FirstPersonHandMotionMode;
-import com.soradotwav.waylight.render.LanternRig;
-import com.soradotwav.waylight.render.LanternViewProjector;
+import com.soradotwav.waylight.render.LanternRigResolver;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
 abstract class ItemInHandRendererMixin {
-	@Unique
-    private static final LanternViewProjector VIEW_PROJECTOR = new LanternViewProjector();
-
 	@Inject(
 		method = "renderHandsWithItems",
 		at = @At(
@@ -35,21 +26,20 @@ abstract class ItemInHandRendererMixin {
 		)
 	)
 	private void waylight$renderHandLantern(float tickDelta, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LocalPlayer localPlayer, int packedLight, CallbackInfo ci) {
-		VirtualLanternState state = WaylightClient.LANTERN_CONTROLLER.getState();
+		VirtualLanternState state = WaylightClient.runtime().lanternController().getState();
 		if (state.lanternPosition() != LanternPosition.LEFT_HAND || !state.modelVisible() || state.temporarilySuppressed()) {
 			return;
 		}
 
-		BlockState lanternBlockState = state.lanternType() == LanternType.SOUL
-			? Blocks.SOUL_LANTERN.defaultBlockState()
-			: Blocks.LANTERN.defaultBlockState();
-		WaylightConfig config = WaylightClient.CONFIG_MANAGER.get();
-		LanternRig rig = WaylightClient.RIG_RESOLVER.resolveThirdPerson(
+		BlockState lanternBlockState = WaylightClient.runtime().rigResolver().lanternBlockState(state.lanternType());
+		LanternRigResolver.Transform transform = WaylightClient.runtime().rigResolver().resolveThirdPerson(
 			state,
-			WaylightClient.POSE_CONTROLLER.getPoseState()
+			WaylightClient.runtime().poseController().getPoseState()
 		);
-		FirstPersonHandMotionMode motionMode = FirstPersonHandMotionMode.fromConfig(config.firstPersonHandMotion);
-		LanternViewProjector.FirstPersonProjection projection = VIEW_PROJECTOR.projectHandLeft(rig, motionMode);
+		LanternRigResolver.Projection projection = WaylightClient.runtime().rigResolver().projectHandLeft(
+			transform,
+			WaylightClient.runtime().configManager().get().firstPersonHandMotion
+		);
 
 		poseStack.pushPose();
 		poseStack.translate(projection.translateX(), projection.translateY(), projection.translateZ());

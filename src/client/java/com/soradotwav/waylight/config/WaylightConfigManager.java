@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.soradotwav.Waylight;
+import com.soradotwav.waylight.lantern.LanternPosition;
+import com.soradotwav.waylight.lantern.LanternType;
+import com.soradotwav.waylight.render.FirstPersonHandMotionMode;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Mth;
 
@@ -19,11 +22,11 @@ public final class WaylightConfigManager {
 
 	private WaylightConfig config = new WaylightConfig();
 
-	public WaylightConfig load() {
+	public void load() {
 		if (Files.notExists(CONFIG_PATH)) {
 			config = new WaylightConfig();
 			save();
-			return config;
+			return;
 		}
 
 		try (Reader reader = Files.newBufferedReader(CONFIG_PATH)) {
@@ -34,8 +37,6 @@ public final class WaylightConfigManager {
 			config = new WaylightConfig();
 			save();
 		}
-
-		return config;
 	}
 
 	public WaylightConfig get() {
@@ -56,22 +57,11 @@ public final class WaylightConfigManager {
 	private static WaylightConfig sanitize(WaylightConfig loaded) {
 		WaylightConfig sanitized = loaded == null ? new WaylightConfig() : loaded;
 
-		if (!"normal".equals(sanitized.lanternType) && !"soul".equals(sanitized.lanternType)) {
-			sanitized.lanternType = "normal";
-		}
-
+		sanitized.lanternType = LanternType.orDefault(sanitized.lanternType);
 		sanitized.autoLightThreshold = Mth.clamp(sanitized.autoLightThreshold, 0, 15);
 		sanitized.motionIntensity = Mth.clamp(sanitized.motionIntensity, 25, 200);
-		if (!"physics".equals(sanitized.firstPersonHandMotion) && !"static".equals(sanitized.firstPersonHandMotion)) {
-			sanitized.firstPersonHandMotion = "physics";
-		}
-
-		if (!"right_hip".equals(sanitized.lanternPosition)
-			&& !"left_hip".equals(sanitized.lanternPosition)
-			&& !"left_hand".equals(sanitized.lanternPosition)) {
-			sanitized.lanternPosition = "right_hip";
-		}
-
+		sanitized.firstPersonHandMotion = FirstPersonHandMotionMode.orDefault(sanitized.firstPersonHandMotion);
+		sanitized.lanternPosition = LanternPosition.orDefault(sanitized.lanternPosition);
 		return sanitized;
 	}
 

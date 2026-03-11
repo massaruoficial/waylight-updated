@@ -1,5 +1,9 @@
 package com.soradotwav.waylight.config;
 
+import com.soradotwav.waylight.lantern.LanternPosition;
+import com.soradotwav.waylight.lantern.LanternType;
+import com.soradotwav.waylight.render.FirstPersonHandMotionMode;
+
 public final class WaylightConfig {
 	public boolean enabled = false;
 	public boolean autoEquipInDarkness = false;
@@ -9,7 +13,7 @@ public final class WaylightConfig {
 	public boolean extinguishUnderwater = true;
 	public int autoLightThreshold = 7;
 	public int motionIntensity = 100;
-	public String firstPersonHandMotion = "physics";
-	public String lanternType = "normal";
-	public String lanternPosition = "right_hip";
+	public FirstPersonHandMotionMode firstPersonHandMotion = FirstPersonHandMotionMode.PHYSICS;
+	public LanternType lanternType = LanternType.NORMAL;
+	public LanternPosition lanternPosition = LanternPosition.RIGHT_HIP;
 }

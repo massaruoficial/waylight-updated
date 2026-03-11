@@ -1,6 +1,10 @@
-package com.soradotwav.waylight.config;
+package com.soradotwav.waylight.integration;
 
 import com.soradotwav.WaylightClient;
+import com.soradotwav.waylight.config.WaylightConfig;
+import com.soradotwav.waylight.lantern.LanternPosition;
+import com.soradotwav.waylight.lantern.LanternType;
+import com.soradotwav.waylight.render.FirstPersonHandMotionMode;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl3.api.ConfigCategory;
@@ -18,7 +22,7 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 	@Override
 	public ConfigScreenFactory<?> getModConfigScreenFactory() {
 		return parent -> {
-			WaylightConfig config = WaylightClient.CONFIG_MANAGER.get();
+			WaylightConfig config = WaylightClient.runtime().configManager().get();
 
 			return YetAnotherConfigLib.createBuilder()
 				.title(Component.translatable("waylight.config.title"))
@@ -27,25 +31,25 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 					.group(OptionGroup.createBuilder()
 						.name(Component.translatable("waylight.config.group.lantern"))
 						.collapsed(false)
-						.option(Option.<LanternVariant>createBuilder()
+						.option(Option.<LanternType>createBuilder()
 							.name(Component.translatable("waylight.config.option.lantern_type"))
 							.description(OptionDescription.of(Component.translatable("waylight.config.option.lantern_type.desc")))
 							.binding(
-								LanternVariant.fromConfig(config.lanternType),
-								() -> LanternVariant.fromConfig(WaylightClient.CONFIG_MANAGER.get().lanternType),
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.lanternType = value.configValue)
+								config.lanternType,
+								() -> WaylightClient.runtime().configManager().get().lanternType,
+								value -> WaylightClient.runtime().configManager().update(cfg -> cfg.lanternType = value)
 							)
-							.controller(option -> EnumControllerBuilder.create(option).enumClass(LanternVariant.class))
+							.controller(option -> EnumControllerBuilder.create(option).enumClass(LanternType.class))
 							.build())
-						.option(Option.<LanternPositionOption>createBuilder()
+						.option(Option.<LanternPosition>createBuilder()
 							.name(Component.translatable("waylight.config.option.lantern_position"))
 							.description(OptionDescription.of(Component.translatable("waylight.config.option.lantern_position.desc")))
 							.binding(
-								LanternPositionOption.fromConfig(config.lanternPosition),
-								() -> LanternPositionOption.fromConfig(WaylightClient.CONFIG_MANAGER.get().lanternPosition),
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.lanternPosition = value.configValue)
+								config.lanternPosition,
+								() -> WaylightClient.runtime().configManager().get().lanternPosition,
+								value -> WaylightClient.runtime().configManager().update(cfg -> cfg.lanternPosition = value)
 							)
-							.controller(option -> EnumControllerBuilder.create(option).enumClass(LanternPositionOption.class))
+							.controller(option -> EnumControllerBuilder.create(option).enumClass(LanternPosition.class))
 							.build())
 						.build())
 					.group(OptionGroup.createBuilder()
@@ -56,8 +60,8 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 							.description(OptionDescription.of(Component.translatable("waylight.config.option.first_person_light.desc")))
 							.binding(
 								config.firstPersonLight,
-								() -> WaylightClient.CONFIG_MANAGER.get().firstPersonLight,
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.firstPersonLight = value)
+								() -> WaylightClient.runtime().configManager().get().firstPersonLight,
+								value -> WaylightClient.runtime().configManager().update(cfg -> cfg.firstPersonLight = value)
 							)
 							.controller(TickBoxControllerBuilder::create)
 							.build())
@@ -66,8 +70,8 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 							.description(OptionDescription.of(Component.translatable("waylight.config.option.extinguish_underwater.desc")))
 							.binding(
 								config.extinguishUnderwater,
-								() -> WaylightClient.CONFIG_MANAGER.get().extinguishUnderwater,
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.extinguishUnderwater = value)
+								() -> WaylightClient.runtime().configManager().get().extinguishUnderwater,
+								value -> WaylightClient.runtime().configManager().update(cfg -> cfg.extinguishUnderwater = value)
 							)
 							.controller(TickBoxControllerBuilder::create)
 							.build())
@@ -76,8 +80,8 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 							.description(OptionDescription.of(Component.translatable("waylight.config.option.auto_equip_in_darkness.desc")))
 							.binding(
 								config.autoEquipInDarkness,
-								() -> WaylightClient.CONFIG_MANAGER.get().autoEquipInDarkness,
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.autoEquipInDarkness = value)
+								() -> WaylightClient.runtime().configManager().get().autoEquipInDarkness,
+								value -> WaylightClient.runtime().configManager().update(cfg -> cfg.autoEquipInDarkness = value)
 							)
 							.controller(TickBoxControllerBuilder::create)
 							.build())
@@ -86,8 +90,8 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 							.description(OptionDescription.of(Component.translatable("waylight.config.option.auto_unequip_in_brightness.desc")))
 							.binding(
 								config.autoUnequipInBrightness,
-								() -> WaylightClient.CONFIG_MANAGER.get().autoUnequipInBrightness,
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.autoUnequipInBrightness = value)
+								() -> WaylightClient.runtime().configManager().get().autoUnequipInBrightness,
+								value -> WaylightClient.runtime().configManager().update(cfg -> cfg.autoUnequipInBrightness = value)
 							)
 							.controller(TickBoxControllerBuilder::create)
 							.build())
@@ -96,8 +100,8 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 							.description(OptionDescription.of(Component.translatable("waylight.config.option.auto_light_threshold.desc")))
 							.binding(
 								config.autoLightThreshold,
-								() -> WaylightClient.CONFIG_MANAGER.get().autoLightThreshold,
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.autoLightThreshold = value)
+								() -> WaylightClient.runtime().configManager().get().autoLightThreshold,
+								value -> WaylightClient.runtime().configManager().update(cfg -> cfg.autoLightThreshold = value)
 							)
 							.controller(option -> IntegerSliderControllerBuilder.create(option)
 								.range(0, 15)
@@ -109,23 +113,23 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 							.description(OptionDescription.of(Component.translatable("waylight.config.option.motion_intensity.desc")))
 							.binding(
 								config.motionIntensity,
-								() -> WaylightClient.CONFIG_MANAGER.get().motionIntensity,
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.motionIntensity = value)
+								() -> WaylightClient.runtime().configManager().get().motionIntensity,
+								value -> WaylightClient.runtime().configManager().update(cfg -> cfg.motionIntensity = value)
 							)
 							.controller(option -> IntegerSliderControllerBuilder.create(option)
 								.range(25, 200)
 								.step(5)
 								.formatValue(value -> Component.literal(value + "%").withStyle(value == 100 ? ChatFormatting.GREEN : ChatFormatting.WHITE)))
 							.build())
-						.option(Option.<FirstPersonMotionOption>createBuilder()
+						.option(Option.<FirstPersonHandMotionMode>createBuilder()
 							.name(Component.translatable("waylight.config.option.first_person_hand_motion"))
 							.description(OptionDescription.of(Component.translatable("waylight.config.option.first_person_hand_motion.desc")))
 							.binding(
-								FirstPersonMotionOption.fromConfig(config.firstPersonHandMotion),
-								() -> FirstPersonMotionOption.fromConfig(WaylightClient.CONFIG_MANAGER.get().firstPersonHandMotion),
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.firstPersonHandMotion = value.configValue)
+								config.firstPersonHandMotion,
+								() -> WaylightClient.runtime().configManager().get().firstPersonHandMotion,
+								value -> WaylightClient.runtime().configManager().update(cfg -> cfg.firstPersonHandMotion = value)
 							)
-							.controller(option -> EnumControllerBuilder.create(option).enumClass(FirstPersonMotionOption.class))
+							.controller(option -> EnumControllerBuilder.create(option).enumClass(FirstPersonHandMotionMode.class))
 							.build())
 						.build())
 					.group(OptionGroup.createBuilder()
@@ -136,89 +140,16 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 							.description(OptionDescription.of(Component.translatable("waylight.config.option.debug_anchor_gizmo.desc")))
 							.binding(
 								config.debugAnchorGizmo,
-								() -> WaylightClient.CONFIG_MANAGER.get().debugAnchorGizmo,
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.debugAnchorGizmo = value)
+								() -> WaylightClient.runtime().configManager().get().debugAnchorGizmo,
+								value -> WaylightClient.runtime().configManager().update(cfg -> cfg.debugAnchorGizmo = value)
 							)
 							.controller(TickBoxControllerBuilder::create)
 							.build())
 						.build())
 					.build())
-				.save(WaylightClient.CONFIG_MANAGER::save)
+				.save(WaylightClient.runtime().configManager()::save)
 				.build()
 				.generateScreen(parent);
 		};
-	}
-
-	private enum LanternVariant {
-		NORMAL("normal", Component.translatable("waylight.config.value.lantern.normal")),
-		SOUL("soul", Component.translatable("waylight.config.value.lantern.soul"));
-
-		private final String configValue;
-		private final Component label;
-
-		LanternVariant(String configValue, Component label) {
-			this.configValue = configValue;
-			this.label = label;
-		}
-
-		public static LanternVariant fromConfig(String value) {
-			return "soul".equals(value) ? SOUL : NORMAL;
-		}
-
-		@Override
-		public String toString() {
-			return label.getString();
-		}
-	}
-
-	private enum LanternPositionOption {
-		RIGHT_HIP("right_hip", Component.translatable("waylight.config.value.position.right_hip")),
-		LEFT_HIP("left_hip", Component.translatable("waylight.config.value.position.left_hip")),
-		LEFT_HAND("left_hand", Component.translatable("waylight.config.value.position.left_hand"));
-
-		private final String configValue;
-		private final Component label;
-
-		LanternPositionOption(String configValue, Component label) {
-			this.configValue = configValue;
-			this.label = label;
-		}
-
-		public static LanternPositionOption fromConfig(String value) {
-			if ("left_hip".equals(value)) {
-				return LEFT_HIP;
-			}
-			if ("left_hand".equals(value)) {
-				return LEFT_HAND;
-			}
-			return RIGHT_HIP;
-		}
-
-		@Override
-		public String toString() {
-			return label.getString();
-		}
-	}
-
-	private enum FirstPersonMotionOption {
-		PHYSICS("physics", Component.translatable("waylight.config.value.first_person_hand_motion.physics")),
-		STATIC("static", Component.translatable("waylight.config.value.first_person_hand_motion.static"));
-
-		private final String configValue;
-		private final Component label;
-
-		FirstPersonMotionOption(String configValue, Component label) {
-			this.configValue = configValue;
-			this.label = label;
-		}
-
-		public static FirstPersonMotionOption fromConfig(String value) {
-			return "static".equals(value) ? STATIC : PHYSICS;
-		}
-
-		@Override
-		public String toString() {
-			return label.getString();
-		}
 	}
 }

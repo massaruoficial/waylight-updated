@@ -27,7 +27,7 @@ abstract class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
 			return;
 		}
 
-		VirtualLanternState state = WaylightClient.LANTERN_CONTROLLER.getState();
+		VirtualLanternState state = WaylightClient.runtime().lanternController().getState();
 		if (state.lanternPosition() != LanternPosition.LEFT_HAND || !state.enabled() || !state.modelVisible() || state.temporarilySuppressed()) {
 			return;
 		}
