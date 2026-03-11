@@ -6,7 +6,8 @@ import com.soradotwav.WaylightClient;
 import com.soradotwav.waylight.lantern.LanternType;
 import com.soradotwav.waylight.lantern.PoseMode;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
-import com.soradotwav.waylight.render.LanternPoseState;
+import com.soradotwav.waylight.render.LanternRig;
+import com.soradotwav.waylight.render.LanternViewProjector;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -20,6 +21,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
 abstract class ItemInHandRendererMixin {
+	private static final LanternViewProjector VIEW_PROJECTOR = new LanternViewProjector();
+
 	@Inject(
 		method = "renderHandsWithItems",
 		at = @At(
@@ -36,14 +39,19 @@ abstract class ItemInHandRendererMixin {
 		BlockState lanternBlockState = state.lanternType() == LanternType.SOUL
 			? Blocks.SOUL_LANTERN.defaultBlockState()
 			: Blocks.LANTERN.defaultBlockState();
-		LanternPoseState poseState = WaylightClient.POSE_CONTROLLER.getPoseState();
+		LanternRig rig = WaylightClient.RIG_RESOLVER.resolveThirdPerson(
+			state,
+			WaylightClient.POSE_CONTROLLER.getPoseState(),
+			WaylightClient.CONFIG_MANAGER.get()
+		);
+		LanternViewProjector.FirstPersonProjection projection = VIEW_PROJECTOR.projectHandLeft(rig);
 
 		poseStack.pushPose();
-		poseStack.translate(-0.84F + poseState.yawLag(1.0F) * 0.0022F, 0.78F - poseState.pitchAngle(1.0F) * 0.0035F, -0.92F);
-		poseStack.mulPose(Axis.YP.rotationDegrees(16.0F + poseState.yawLag(1.0F) * 0.12F));
-		poseStack.mulPose(Axis.XP.rotationDegrees(8.0F + poseState.pitchAngle(1.0F) * 0.16F));
-		poseStack.mulPose(Axis.ZP.rotationDegrees(-8.0F + poseState.rollAngle(1.0F) * 0.1F));
-		poseStack.scale(1.08F, 1.08F, 1.08F);
+		poseStack.translate(projection.translateX(), projection.translateY(), projection.translateZ());
+		poseStack.mulPose(Axis.YP.rotationDegrees(projection.rotateY()));
+		poseStack.mulPose(Axis.XP.rotationDegrees(projection.rotateX()));
+		poseStack.mulPose(Axis.ZP.rotationDegrees(projection.rotateZ()));
+		poseStack.scale(projection.scale(), projection.scale(), projection.scale());
 		poseStack.translate(-0.5F, -0.65F, -0.5F);
 		submitNodeCollector.submitBlock(poseStack, lanternBlockState, packedLight, OverlayTexture.NO_OVERLAY, 0);
 		poseStack.popPose();
