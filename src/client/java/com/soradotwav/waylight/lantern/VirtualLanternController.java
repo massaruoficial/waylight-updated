@@ -9,157 +9,172 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
 public final class VirtualLanternController {
-	private static final float EQUIP_VOLUME = 0.8F;
-	private static final float EQUIP_PITCH_ON = 1.0F;
-	private static final float EQUIP_PITCH_OFF = 0.9F;
-	private static final float EXTINGUISH_VOLUME = 0.2F;
-	private static final float EXTINGUISH_PITCH = 1.1F;
-	private static final float RELIGHT_VOLUME = 0.22F;
-	private static final float RELIGHT_PITCH = 1.25F;
+    private static final float EQUIP_VOLUME = 0.8F;
+    private static final float EQUIP_PITCH_ON = 1.0F;
+    private static final float EQUIP_PITCH_OFF = 0.9F;
 
-	private final WaylightConfigManager configManager;
-	private VirtualLanternState currentState = new VirtualLanternState(false, LanternType.NORMAL, LanternPosition.RIGHT_HIP, false, false, false, false);
+    private static final float EXTINGUISH_VOLUME = 0.2F;
+    private static final float EXTINGUISH_PITCH = 1.1F;
+    private static final float RELIGHT_VOLUME = 0.22F;
+    private static final float RELIGHT_PITCH = 1.25F;
 
-	public VirtualLanternController(WaylightConfigManager configManager) {
-		this.configManager = configManager;
-	}
+    private final WaylightConfigManager configManager;
 
-	public void toggle(Minecraft client) {
-		LocalPlayer player = client.player;
-		if (player == null || client.level == null) {
-			return;
-		}
+    private VirtualLanternState currentState =
+            new VirtualLanternState(false, LanternType.NORMAL, LanternPosition.RIGHT_HIP, false, false, false, false);
 
-		WaylightConfig config = configManager.get();
-		int localBrightness = client.level.getMaxLocalRawBrightness(player.blockPosition());
+    public VirtualLanternController(WaylightConfigManager configManager) {
+        this.configManager = configManager;
+    }
 
-		if (!config.enabled && config.autoUnequipInBrightness && localBrightness > config.autoLightThreshold) {
-			player.displayClientMessage(Component.translatable("message.waylight.too_bright"), true);
-			return;
-		}
+    public void toggle(Minecraft client) {
+        LocalPlayer player = client.player;
+        if (player == null || client.level == null) {
+            return;
+        }
 
-		if (config.enabled && config.autoEquipInDarkness && localBrightness <= config.autoLightThreshold) {
-			player.displayClientMessage(Component.translatable("message.waylight.too_dark"), true);
-			return;
-		}
+        WaylightConfig config = configManager.get();
+        int localBrightness = client.level.getMaxLocalRawBrightness(player.blockPosition());
 
-		config.enabled = !config.enabled;
-		configManager.save();
-		playLanternSound(player, config.enabled);
-		player.displayClientMessage(Component.translatable(config.enabled ? "message.waylight.lantern_on" : "message.waylight.lantern_off"), true);
-	}
+        if (!config.enabled && config.autoUnequipInBrightness && localBrightness > config.autoLightThreshold) {
+            player.displayClientMessage(Component.translatable("message.waylight.too_bright"), true);
+            return;
+        }
 
-	public void tick(Minecraft client) {
-		applyAutoLanternBehavior(client);
+        if (config.enabled && config.autoEquipInDarkness && localBrightness <= config.autoLightThreshold) {
+            player.displayClientMessage(Component.translatable("message.waylight.too_dark"), true);
+            return;
+        }
 
-		VirtualLanternState previousState = currentState;
-		currentState = resolveState(client);
+        config.enabled = !config.enabled;
+        configManager.save();
 
-		LocalPlayer player = client.player;
-		if (player != null && previousState.enabled() && currentState.enabled() && hasTransition(previousState, currentState)) {
-			playTransitionSound(player, previousState, currentState);
-		}
-	}
+        playLanternSound(player, config.enabled);
+        player.displayClientMessage(
+                Component.translatable(config.enabled ? "message.waylight.lantern_on" : "message.waylight.lantern_off"),
+                true);
+    }
 
-	public VirtualLanternState getState() {
-		return currentState;
-	}
+    public void tick(Minecraft client) {
+        applyAutoLanternBehavior(client);
 
-	private VirtualLanternState resolveState(Minecraft client) {
-		WaylightConfig config = configManager.get();
-		return resolveState(client, config, config.enabled);
-	}
+        VirtualLanternState previousState = currentState;
+        currentState = resolveState(client);
 
-	private VirtualLanternState resolveState(Minecraft client, WaylightConfig config, boolean enabled) {
-		LocalPlayer player = client.player;
-		boolean firstPerson = client.options.getCameraType() == CameraType.FIRST_PERSON;
+        LocalPlayer player = client.player;
+        if (player != null
+                && previousState.enabled()
+                && currentState.enabled()
+                && hasTransition(previousState, currentState)) {
+            playTransitionSound(player, previousState, currentState);
+        }
+    }
 
-		if (!enabled || player == null || !player.isAlive() || player.isRemoved()) {
-			return new VirtualLanternState(enabled, config.lanternType, config.lanternPosition, false, false, false, false);
-		}
+    public VirtualLanternState getState() {
+        return currentState;
+    }
 
-		if (config.lanternPosition.isHandHeld() && (player.isSwimming() || !player.getOffhandItem().isEmpty())) {
-			return new VirtualLanternState(true, config.lanternType, config.lanternPosition, false, false, true, false);
-		}
+    private VirtualLanternState resolveState(Minecraft client) {
+        WaylightConfig config = configManager.get();
+        return resolveState(client, config, config.enabled);
+    }
 
-		boolean lightActive = !firstPerson || config.firstPersonLight;
-		boolean modelVisible = config.lanternPosition.isHandHeld() || !firstPerson;
+    private VirtualLanternState resolveState(Minecraft client, WaylightConfig config, boolean enabled) {
+        LocalPlayer player = client.player;
+        boolean firstPerson = client.options.getCameraType() == CameraType.FIRST_PERSON;
 
-		if (config.extinguishUnderwater && player.isUnderWater()) {
-			return new VirtualLanternState(true, config.lanternType, config.lanternPosition, false, modelVisible, false, true);
-		}
+        if (!enabled || player == null || !player.isAlive() || player.isRemoved()) {
+            return new VirtualLanternState(
+                    enabled, config.lanternType, config.lanternPosition, false, false, false, false);
+        }
 
-		return new VirtualLanternState(true, config.lanternType, config.lanternPosition, lightActive, modelVisible, false, false);
-	}
+        if (config.lanternPosition.isHandHeld()
+                && (player.isSwimming() || !player.getOffhandItem().isEmpty())) {
+            return new VirtualLanternState(true, config.lanternType, config.lanternPosition, false, false, true, false);
+        }
 
-	private void applyAutoLanternBehavior(Minecraft client) {
-		LocalPlayer player = client.player;
-		if (player == null || client.level == null) {
-			return;
-		}
+        boolean lightActive = !firstPerson || config.firstPersonLight;
+        boolean modelVisible = config.lanternPosition.isHandHeld() || !firstPerson;
 
-		WaylightConfig config = configManager.get();
-		if (!config.autoEquipInDarkness && !config.autoUnequipInBrightness) {
-			return;
-		}
+        if (config.extinguishUnderwater && player.isUnderWater()) {
+            return new VirtualLanternState(
+                    true, config.lanternType, config.lanternPosition, false, modelVisible, false, true);
+        }
 
-		int localBrightness = client.level.getMaxLocalRawBrightness(player.blockPosition());
-		boolean tooDark = localBrightness <= config.autoLightThreshold;
-		boolean brightEnough = localBrightness > config.autoLightThreshold;
-		boolean changed = false;
+        return new VirtualLanternState(
+                true, config.lanternType, config.lanternPosition, lightActive, modelVisible, false, false);
+    }
 
-		if (config.autoEquipInDarkness && !config.enabled && tooDark && canAutoEnable(client, config, player)) {
-			config.enabled = true;
-			playLanternSound(player, true);
-			changed = true;
-		} else if (config.autoUnequipInBrightness && config.enabled && brightEnough) {
-			config.enabled = false;
-			playLanternSound(player, false);
-			changed = true;
-		}
+    private void applyAutoLanternBehavior(Minecraft client) {
+        LocalPlayer player = client.player;
+        if (player == null || client.level == null) {
+            return;
+        }
 
-		if (changed) {
-			configManager.save();
-		}
-	}
+        WaylightConfig config = configManager.get();
+        if (!config.autoEquipInDarkness && !config.autoUnequipInBrightness) {
+            return;
+        }
 
-	private boolean canAutoEnable(Minecraft client, WaylightConfig config, LocalPlayer player) {
-		VirtualLanternState resolved = resolveState(client, config, true);
-		return !resolved.temporarilySuppressed()
-			&& !resolved.underwaterExtinguished()
-			&& (resolved.lightActive() || resolved.modelVisible())
-			&& player.isAlive()
-			&& !player.isRemoved();
-	}
+        int localBrightness = client.level.getMaxLocalRawBrightness(player.blockPosition());
+        boolean tooDark = localBrightness <= config.autoLightThreshold;
+        boolean brightEnough = localBrightness > config.autoLightThreshold;
+        boolean changed = false;
 
-	private static void playLanternSound(LocalPlayer player, boolean active) {
-		player.playSound(SoundEvents.ARMOR_EQUIP_CHAIN.value(), EQUIP_VOLUME, active ? EQUIP_PITCH_ON : EQUIP_PITCH_OFF);
-	}
+        if (config.autoEquipInDarkness && !config.enabled && tooDark && canAutoEnable(client, config, player)) {
+            config.enabled = true;
+            playLanternSound(player, true);
+            changed = true;
+        } else if (config.autoUnequipInBrightness && config.enabled && brightEnough) {
+            config.enabled = false;
+            playLanternSound(player, false);
+            changed = true;
+        }
 
-	private static void playTransitionSound(LocalPlayer player, VirtualLanternState previousState, VirtualLanternState currentState) {
-		if (previousState.temporarilySuppressed() != currentState.temporarilySuppressed()) {
-			playLanternSound(player, !currentState.temporarilySuppressed());
-			return;
-		}
+        if (changed) {
+            configManager.save();
+        }
+    }
 
-		if (previousState.underwaterExtinguished() && !currentState.underwaterExtinguished()) {
-			player.playSound(SoundEvents.FLINTANDSTEEL_USE, RELIGHT_VOLUME, RELIGHT_PITCH);
-			return;
-		}
+    private boolean canAutoEnable(Minecraft client, WaylightConfig config, LocalPlayer player) {
+        VirtualLanternState resolved = resolveState(client, config, true);
+        return !resolved.temporarilySuppressed()
+                && !resolved.underwaterExtinguished()
+                && (resolved.lightActive() || resolved.modelVisible())
+                && player.isAlive()
+                && !player.isRemoved();
+    }
 
-		if (!previousState.underwaterExtinguished() && currentState.underwaterExtinguished()) {
-			player.playSound(SoundEvents.FIRE_EXTINGUISH, EXTINGUISH_VOLUME, EXTINGUISH_PITCH);
-			return;
-		}
+    private static void playLanternSound(LocalPlayer player, boolean active) {
+        player.playSound(
+                SoundEvents.ARMOR_EQUIP_CHAIN.value(), EQUIP_VOLUME, active ? EQUIP_PITCH_ON : EQUIP_PITCH_OFF);
+    }
 
-		if (previousState.lightActive() != currentState.lightActive()) {
-			playLanternSound(player, currentState.lightActive());
-		}
-	}
+    private static void playTransitionSound(
+            LocalPlayer player, VirtualLanternState previousState, VirtualLanternState currentState) {
+        if (previousState.temporarilySuppressed() != currentState.temporarilySuppressed()) {
+            playLanternSound(player, !currentState.temporarilySuppressed());
+            return;
+        }
 
-	private static boolean hasTransition(VirtualLanternState previousState, VirtualLanternState currentState) {
-		return previousState.temporarilySuppressed() != currentState.temporarilySuppressed()
-			|| previousState.underwaterExtinguished() != currentState.underwaterExtinguished()
-			|| previousState.lightActive() != currentState.lightActive();
-	}
+        if (previousState.underwaterExtinguished() && !currentState.underwaterExtinguished()) {
+            player.playSound(SoundEvents.FLINTANDSTEEL_USE, RELIGHT_VOLUME, RELIGHT_PITCH);
+            return;
+        }
+
+        if (!previousState.underwaterExtinguished() && currentState.underwaterExtinguished()) {
+            player.playSound(SoundEvents.FIRE_EXTINGUISH, EXTINGUISH_VOLUME, EXTINGUISH_PITCH);
+            return;
+        }
+
+        if (previousState.lightActive() != currentState.lightActive()) {
+            playLanternSound(player, currentState.lightActive());
+        }
+    }
+
+    private static boolean hasTransition(VirtualLanternState previousState, VirtualLanternState currentState) {
+        return previousState.temporarilySuppressed() != currentState.temporarilySuppressed()
+                || previousState.underwaterExtinguished() != currentState.underwaterExtinguished()
+                || previousState.lightActive() != currentState.lightActive();
+    }
 }

@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import com.soradotwav.WaylightClient;
 import com.soradotwav.waylight.lantern.LanternPosition;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
+import com.soradotwav.waylight.render.LanternPoseController;
 import com.soradotwav.waylight.render.LanternRigResolver;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -18,37 +19,44 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
 abstract class ItemInHandRendererMixin {
-	@Inject(
-		method = "renderHandsWithItems",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/client/renderer/feature/FeatureRenderDispatcher;renderAllFeatures()V"
-		)
-	)
-	private void waylight$renderHandLantern(float tickDelta, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LocalPlayer localPlayer, int packedLight, CallbackInfo ci) {
-		VirtualLanternState state = WaylightClient.runtime().lanternController().getState();
-		if (state.lanternPosition() != LanternPosition.LEFT_HAND || !state.modelVisible() || state.temporarilySuppressed()) {
-			return;
-		}
+    @Inject(
+            method = "renderHandsWithItems",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/client/renderer/feature/FeatureRenderDispatcher;renderAllFeatures()V"))
+    private void waylight$renderHandLantern(
+            float tickDelta,
+            PoseStack poseStack,
+            SubmitNodeCollector submitNodeCollector,
+            LocalPlayer localPlayer,
+            int packedLight,
+            CallbackInfo ci) {
+        VirtualLanternState state = WaylightClient.runtime().lanternController().getState();
+        if (state.lanternPosition() != LanternPosition.LEFT_HAND
+                || !state.modelVisible()
+                || state.temporarilySuppressed()) {
+            return;
+        }
 
-		BlockState lanternBlockState = WaylightClient.runtime().rigResolver().lanternBlockState(state.lanternType());
-		LanternRigResolver.Transform transform = WaylightClient.runtime().rigResolver().resolveThirdPerson(
-			state,
-			WaylightClient.runtime().poseController().getPoseState()
-		);
-		LanternRigResolver.Projection projection = WaylightClient.runtime().rigResolver().projectHandLeft(
-			transform,
-			WaylightClient.runtime().configManager().get().firstPersonHandMotion
-		);
+        LanternRigResolver rigResolver = WaylightClient.runtime().rigResolver();
+        LanternPoseController.PoseState poseState =
+                WaylightClient.runtime().poseController().getPoseState();
 
-		poseStack.pushPose();
-		poseStack.translate(projection.translateX(), projection.translateY(), projection.translateZ());
-		poseStack.mulPose(Axis.YP.rotationDegrees(projection.rotateY()));
-		poseStack.mulPose(Axis.XP.rotationDegrees(projection.rotateX()));
-		poseStack.mulPose(Axis.ZP.rotationDegrees(projection.rotateZ()));
-		poseStack.scale(projection.scale(), projection.scale(), projection.scale());
-		poseStack.translate(-0.5F, -0.65F, -0.5F);
-		submitNodeCollector.submitBlock(poseStack, lanternBlockState, packedLight, OverlayTexture.NO_OVERLAY, 0);
-		poseStack.popPose();
-	}
+        BlockState lanternBlockState = rigResolver.lanternBlockState(state.lanternType());
+        LanternRigResolver.Transform transform = rigResolver.resolveThirdPerson(state, poseState);
+        LanternRigResolver.Projection projection = rigResolver.projectHandLeft(
+                transform, WaylightClient.runtime().configManager().get().firstPersonHandMotion);
+
+        poseStack.pushPose();
+        poseStack.translate(projection.translateX(), projection.translateY(), projection.translateZ());
+        poseStack.mulPose(Axis.YP.rotationDegrees(projection.rotateY()));
+        poseStack.mulPose(Axis.XP.rotationDegrees(projection.rotateX()));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(projection.rotateZ()));
+        poseStack.scale(projection.scale(), projection.scale(), projection.scale());
+        poseStack.translate(-0.5F, -0.65F, -0.5F);
+        submitNodeCollector.submitBlock(poseStack, lanternBlockState, packedLight, OverlayTexture.NO_OVERLAY, 0);
+        poseStack.popPose();
+    }
 }

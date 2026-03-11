@@ -1,5 +1,6 @@
 plugins {
 	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+	id("com.diffplug.spotless") version "8.3.0"
 	id 'maven-publish'
 }
 
@@ -52,6 +53,26 @@ dependencies {
 	modRuntimeOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 
 	modImplementation "dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${project.lambdynamiclights_version}"
+}
+
+spotless {
+	java {
+		target 'src/*/java/**/*.java'
+		palantirJavaFormat()
+		formatAnnotations()
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+
+	format 'misc', {
+		target '*.gradle', '*.md', '.gitignore', '.gitattributes'
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+}
+
+tasks.named('check') {
+	dependsOn tasks.named('spotlessCheck')
 }
 
 processResources {

@@ -14,117 +14,121 @@ import org.joml.Vector3d;
 import org.jspecify.annotations.NonNull;
 
 public final class LambDynamicLightsAdapter {
-	private static final int LUMINANCE = 15;
+    private static final int LUMINANCE = 15;
 
-	private final WaylightLanternBehavior behavior;
-	private boolean registered;
+    private final WaylightLanternBehavior behavior;
+    private boolean registered;
 
-	public LambDynamicLightsAdapter(
-		VirtualLanternController lanternController,
-		LanternPoseController poseController,
-		LanternRigResolver rigResolver
-	) {
-		this.behavior = new WaylightLanternBehavior(lanternController, poseController, rigResolver);
-	}
+    public LambDynamicLightsAdapter(
+            VirtualLanternController lanternController,
+            LanternPoseController poseController,
+            LanternRigResolver rigResolver) {
+        this.behavior = new WaylightLanternBehavior(lanternController, poseController, rigResolver);
+    }
 
-	public void tick(Minecraft client) {
-		if (!registered) {
-			DynamicLightBehaviorManager behaviorManager = client.level != null
-				? getBehaviorManager()
-				: null;
+    public void tick(Minecraft client) {
+        if (!registered) {
+            DynamicLightBehaviorManager behaviorManager = client.level != null ? getBehaviorManager() : null;
 
-			if (behaviorManager != null) {
-				behaviorManager.add(behavior);
-				registered = true;
-			}
-		}
+            if (behaviorManager != null) {
+                behaviorManager.add(behavior);
+                registered = true;
+            }
+        }
 
-		behavior.update(client);
-	}
+        behavior.update(client);
+    }
 
-	private static DynamicLightBehaviorManager getBehaviorManager() {
-		try {
-			Class<?> dynamicLightsClass = Class.forName("dev.lambdaurora.lambdynlights.LambDynLights");
-			Object instance = dynamicLightsClass.getMethod("get").invoke(null);
-			return (DynamicLightBehaviorManager) dynamicLightsClass.getMethod("dynamicLightBehaviorManager").invoke(instance);
-		} catch (ReflectiveOperationException exception) {
-			Waylight.LOGGER.error("Failed to access LambDynamicLights behavior manager.", exception);
-			return null;
-		}
-	}
+    private static DynamicLightBehaviorManager getBehaviorManager() {
+        try {
+            Class<?> dynamicLightsClass = Class.forName("dev.lambdaurora.lambdynlights.LambDynLights");
+            Object instance = dynamicLightsClass.getMethod("get").invoke(null);
 
-	private static final class WaylightLanternBehavior implements DynamicLightBehavior {
-		private final VirtualLanternController lanternController;
-		private final LanternPoseController poseController;
-		private final LanternRigResolver rigResolver;
-		private final Vector3d position = new Vector3d();
-		private final Vector3d previousPosition = new Vector3d(Double.NaN, Double.NaN, Double.NaN);
-		private int luminance;
-		private int previousLuminance = -1;
-		private boolean removed;
+            return (DynamicLightBehaviorManager)
+                    dynamicLightsClass.getMethod("dynamicLightBehaviorManager").invoke(instance);
+        } catch (ReflectiveOperationException exception) {
+            Waylight.LOGGER.error("Failed to access LambDynamicLights behavior manager.", exception);
+            return null;
+        }
+    }
 
-		private WaylightLanternBehavior(
-			VirtualLanternController lanternController,
-			LanternPoseController poseController,
-			LanternRigResolver rigResolver
-		) {
-			this.lanternController = lanternController;
-			this.poseController = poseController;
-			this.rigResolver = rigResolver;
-		}
+    private static final class WaylightLanternBehavior implements DynamicLightBehavior {
+        private final VirtualLanternController lanternController;
+        private final LanternPoseController poseController;
+        private final LanternRigResolver rigResolver;
 
-		void update(Minecraft client) {
-			LocalPlayer player = client.player;
-			if (player == null || client.level == null) {
-				luminance = 0;
-				removed = false;
-				return;
-			}
+        private final Vector3d position = new Vector3d();
+        private final Vector3d previousPosition = new Vector3d(Double.NaN, Double.NaN, Double.NaN);
 
-			VirtualLanternState state = lanternController.getState();
-			luminance = state.lightActive() ? LUMINANCE : 0;
-			if (luminance <= 0) {
-				return;
-			}
+        private int luminance;
+        private int previousLuminance = -1;
+        private boolean removed;
 
-			LanternRigResolver.Transform transform = rigResolver.resolve(state, poseController.getPoseState());
-			rigResolver.resolveWorldLightCore(player, transform, position);
-		}
+        private WaylightLanternBehavior(
+                VirtualLanternController lanternController,
+                LanternPoseController poseController,
+                LanternRigResolver rigResolver) {
+            this.lanternController = lanternController;
+            this.poseController = poseController;
+            this.rigResolver = rigResolver;
+        }
 
-		@Override
-		public double lightAtPos(@NonNull BlockPos pos, double falloffRatio) {
-			if (luminance <= 0) {
-				return 0.0;
-			}
+        void update(Minecraft client) {
+            LocalPlayer player = client.player;
+            if (player == null || client.level == null) {
+                luminance = 0;
+                removed = false;
+                return;
+            }
 
-			double dx = pos.getX() + 0.5 - position.x();
-			double dy = pos.getY() + 0.5 - position.y();
-			double dz = pos.getZ() + 0.5 - position.z();
-			double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-			return Math.max(luminance - distance * falloffRatio, 0.0);
-		}
+            VirtualLanternState state = lanternController.getState();
+            luminance = state.lightActive() ? LUMINANCE : 0;
+            if (luminance <= 0) {
+                return;
+            }
 
-		@Override
-		public @NonNull BoundingBox getBoundingBox() {
-			int x = (int) Math.floor(position.x());
-			int y = (int) Math.floor(position.y());
-			int z = (int) Math.floor(position.z());
-			return new BoundingBox(x, y, z, x + 1, y + 1, z + 1);
-		}
+            LanternRigResolver.Transform transform = rigResolver.resolve(state, poseController.getPoseState());
 
-		@Override
-		public boolean hasChanged() {
-			boolean changed = !position.equals(previousPosition) || luminance != previousLuminance;
-			if (changed) {
-				previousPosition.set(position);
-				previousLuminance = luminance;
-			}
-			return changed;
-		}
+            rigResolver.resolveWorldLightCore(player, transform, position);
+        }
 
-		@Override
-		public boolean isRemoved() {
-			return removed;
-		}
-	}
+        @Override
+        public double lightAtPos(@NonNull BlockPos pos, double falloffRatio) {
+            if (luminance <= 0) {
+                return 0.0;
+            }
+
+            double dx = pos.getX() + 0.5 - position.x();
+            double dy = pos.getY() + 0.5 - position.y();
+            double dz = pos.getZ() + 0.5 - position.z();
+            double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+            return Math.max(luminance - distance * falloffRatio, 0.0);
+        }
+
+        @Override
+        public @NonNull BoundingBox getBoundingBox() {
+            int x = (int) Math.floor(position.x());
+            int y = (int) Math.floor(position.y());
+            int z = (int) Math.floor(position.z());
+
+            return new BoundingBox(x, y, z, x + 1, y + 1, z + 1);
+        }
+
+        @Override
+        public boolean hasChanged() {
+            boolean changed = !position.equals(previousPosition) || luminance != previousLuminance;
+            if (changed) {
+                previousPosition.set(position);
+                previousLuminance = luminance;
+            }
+
+            return changed;
+        }
+
+        @Override
+        public boolean isRemoved() {
+            return removed;
+        }
+    }
 }

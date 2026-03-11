@@ -16,24 +16,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerModel.class)
 abstract class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
-	PlayerModelMixin(ModelPart root) {
-		super(root);
-	}
+    PlayerModelMixin(ModelPart root) {
+        super(root);
+    }
 
-	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
-	private void waylight$raiseLeftArmForLantern(AvatarRenderState renderState, CallbackInfo ci) {
-		if (!(renderState instanceof FabricRenderState fabricRenderState)
-			|| !Boolean.TRUE.equals(fabricRenderState.getData(WaylightRenderHooks.LOCAL_PLAYER_RENDER_STATE))) {
-			return;
-		}
+    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
+    private void waylight$raiseLeftArmForLantern(AvatarRenderState renderState, CallbackInfo ci) {
+        if (!(renderState instanceof FabricRenderState fabricRenderState)
+                || !Boolean.TRUE.equals(fabricRenderState.getData(WaylightRenderHooks.LOCAL_PLAYER_RENDER_STATE))) {
+            return;
+        }
 
-		VirtualLanternState state = WaylightClient.runtime().lanternController().getState();
-		if (state.lanternPosition() != LanternPosition.LEFT_HAND || !state.enabled() || !state.modelVisible() || state.temporarilySuppressed()) {
-			return;
-		}
+        VirtualLanternState state = WaylightClient.runtime().lanternController().getState();
+        if (state.lanternPosition() != LanternPosition.LEFT_HAND
+                || !state.enabled()
+                || !state.modelVisible()
+                || state.temporarilySuppressed()) {
+            return;
+        }
 
-		leftArm.xRot = (float) Math.toRadians(-130.0F);
-		leftArm.yRot = (float) Math.toRadians(10.0F);
-		leftArm.zRot = (float) Math.toRadians(-6.0F);
-	}
+        leftArm.xRot = (float) Math.toRadians(-130.0F);
+        leftArm.yRot = (float) Math.toRadians(10.0F);
+        leftArm.zRot = (float) Math.toRadians(-6.0F);
+    }
 }
