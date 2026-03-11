@@ -2,7 +2,6 @@ package com.soradotwav.waylight.light;
 
 import com.soradotwav.Waylight;
 import com.soradotwav.WaylightClient;
-import com.soradotwav.waylight.config.WaylightConfig;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
 import com.soradotwav.waylight.render.LanternRig;
 import dev.lambdaurora.lambdynlights.api.behavior.DynamicLightBehavior;
@@ -64,8 +63,7 @@ public final class LambDynamicLightsAdapter implements VirtualLightSource {
 				return;
 			}
 
-			WaylightConfig config = WaylightClient.CONFIG_MANAGER.get();
-			LanternRig rig = WaylightClient.RIG_RESOLVER.resolve(state, WaylightClient.POSE_CONTROLLER.getPoseState(), config);
+			LanternRig rig = WaylightClient.RIG_RESOLVER.resolve(state, WaylightClient.POSE_CONTROLLER.getPoseState());
 			WaylightClient.RIG_RESOLVER.resolveWorldLightCore(player, rig, position);
 		}
 

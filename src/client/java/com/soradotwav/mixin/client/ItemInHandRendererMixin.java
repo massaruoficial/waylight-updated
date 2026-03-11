@@ -17,13 +17,15 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
 abstract class ItemInHandRendererMixin {
-	private static final LanternViewProjector VIEW_PROJECTOR = new LanternViewProjector();
+	@Unique
+    private static final LanternViewProjector VIEW_PROJECTOR = new LanternViewProjector();
 
 	@Inject(
 		method = "renderHandsWithItems",
@@ -44,8 +46,7 @@ abstract class ItemInHandRendererMixin {
 		WaylightConfig config = WaylightClient.CONFIG_MANAGER.get();
 		LanternRig rig = WaylightClient.RIG_RESOLVER.resolveThirdPerson(
 			state,
-			WaylightClient.POSE_CONTROLLER.getPoseState(),
-			config
+			WaylightClient.POSE_CONTROLLER.getPoseState()
 		);
 		FirstPersonHandMotionMode motionMode = FirstPersonHandMotionMode.fromConfig(config.firstPersonHandMotion);
 		LanternViewProjector.FirstPersonProjection projection = VIEW_PROJECTOR.projectHandLeft(rig, motionMode);

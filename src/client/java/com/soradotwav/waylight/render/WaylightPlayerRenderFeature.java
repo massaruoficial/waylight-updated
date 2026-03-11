@@ -44,7 +44,7 @@ public final class WaylightPlayerRenderFeature extends RenderLayer<AvatarRenderS
 
 		LanternPoseState poseState = WaylightClient.POSE_CONTROLLER.getPoseState();
 		WaylightConfig config = WaylightClient.CONFIG_MANAGER.get();
-		LanternRig rig = WaylightClient.RIG_RESOLVER.resolveThirdPerson(lanternState, poseState, config);
+		LanternRig rig = WaylightClient.RIG_RESOLVER.resolveThirdPerson(lanternState, poseState);
 		LanternTransform transform = rig.transform();
 
 		poseStack.pushPose();

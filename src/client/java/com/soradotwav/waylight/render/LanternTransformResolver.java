@@ -1,6 +1,5 @@
 package com.soradotwav.waylight.render;
 
-import com.soradotwav.waylight.config.WaylightConfig;
 import com.soradotwav.waylight.lantern.LanternPosition;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
 

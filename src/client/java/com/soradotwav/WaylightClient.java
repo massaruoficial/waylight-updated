@@ -5,7 +5,6 @@ import com.soradotwav.waylight.lantern.VirtualLanternController;
 import com.soradotwav.waylight.light.LambDynamicLightsAdapter;
 import com.soradotwav.waylight.render.LanternRigResolver;
 import com.soradotwav.waylight.render.LanternPoseController;
-import com.soradotwav.waylight.render.LanternTransformResolver;
 import com.soradotwav.waylight.render.WaylightRenderHooks;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;

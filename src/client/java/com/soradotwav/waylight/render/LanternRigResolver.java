@@ -1,6 +1,5 @@
 package com.soradotwav.waylight.render;
 
-import com.soradotwav.waylight.config.WaylightConfig;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
 import net.minecraft.client.player.LocalPlayer;
 import org.joml.Vector3d;
@@ -16,12 +15,12 @@ public final class LanternRigResolver {
 
 	private final LanternTransformResolver transformResolver = new LanternTransformResolver();
 
-	public LanternRig resolve(VirtualLanternState lanternState, LanternPoseState poseState, WaylightConfig config) {
+	public LanternRig resolve(VirtualLanternState lanternState, LanternPoseState poseState) {
 		return new LanternRig(transformResolver.resolveThirdPerson(lanternState, poseState));
 	}
 
-	public LanternRig resolveThirdPerson(VirtualLanternState lanternState, LanternPoseState poseState, WaylightConfig config) {
-		return resolve(lanternState, poseState, config);
+	public LanternRig resolveThirdPerson(VirtualLanternState lanternState, LanternPoseState poseState) {
+		return resolve(lanternState, poseState);
 	}
 
 	public void resolveWorldLightCore(LocalPlayer player, LanternRig rig, Vector3d destination) {
@@ -43,10 +42,6 @@ public final class LanternRigResolver {
 			player.getY() + anchor.y() + offset.y(),
 			player.getZ() + anchor.z() + offset.z()
 		);
-	}
-
-	public LanternTransformResolver transformResolver() {
-		return transformResolver;
 	}
 
 	private static Vector3f resolveAnchor(LocalPlayer player, LanternTransform.Attachment attachment) {
