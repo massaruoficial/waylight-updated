@@ -17,7 +17,7 @@ public final class LanternRigResolver {
 	private final LanternTransformResolver transformResolver = new LanternTransformResolver();
 
 	public LanternRig resolve(VirtualLanternState lanternState, LanternPoseState poseState, WaylightConfig config) {
-		return new LanternRig(transformResolver.resolveThirdPerson(lanternState, poseState, config));
+		return new LanternRig(transformResolver.resolveThirdPerson(lanternState, poseState));
 	}
 
 	public LanternRig resolveThirdPerson(VirtualLanternState lanternState, LanternPoseState poseState, WaylightConfig config) {

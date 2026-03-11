@@ -9,7 +9,7 @@ public final class LanternTransformResolver {
 	private static final float EMISSION_Y = -0.28F;
 	private static final float EMISSION_Z = 0.0F;
 
-	public LanternTransform resolveThirdPerson(VirtualLanternState lanternState, LanternPoseState poseState, WaylightConfig config) {
+	public LanternTransform resolveThirdPerson(VirtualLanternState lanternState, LanternPoseState poseState) {
 		if (lanternState.lanternPosition().isHandHeld()) {
 			return resolveHandLeft(poseState);
 		}

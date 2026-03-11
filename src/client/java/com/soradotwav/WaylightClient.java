@@ -22,7 +22,6 @@ public class WaylightClient implements ClientModInitializer {
 
 	public static final WaylightConfigManager CONFIG_MANAGER = new WaylightConfigManager();
 	public static final LanternRigResolver RIG_RESOLVER = new LanternRigResolver();
-	public static final LanternTransformResolver TRANSFORM_RESOLVER = RIG_RESOLVER.transformResolver();
 	public static VirtualLanternController LANTERN_CONTROLLER;
 	public static LanternPoseController POSE_CONTROLLER;
 	public static LambDynamicLightsAdapter DYNAMIC_LIGHTS_ADAPTER;

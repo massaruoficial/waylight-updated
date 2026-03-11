@@ -22,8 +22,4 @@ public enum LanternPosition {
 	public boolean isHipMounted() {
 		return this == RIGHT_HIP || this == LEFT_HIP;
 	}
-
-	public boolean isLeftSide() {
-		return this == LEFT_HIP || this == LEFT_HAND;
-	}
 }

@@ -1,7 +1,6 @@
 package com.soradotwav.waylight.config;
 
 import com.soradotwav.WaylightClient;
-import com.soradotwav.waylight.render.FirstPersonHandMotionMode;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl3.api.ConfigCategory;
