@@ -3,14 +3,15 @@
 	"id": "waylight",
 	"version": "${version}",
 	"name": "Waylight",
-	"description": "Client-side hip lantern mod for Minecraft that adds a toggleable personal light using vanilla lantern models and dynamic lights.",
+	"description": "Client-side virtual lantern for Minecraft: carry a configurable vanilla lantern on your hip or in hand with dynamic light, no inventory item required.",
 	"authors": [
 		"soradotwav"
 	],
 	"contact": {
+		"issues": "https://github.com/soradotwav/waylight/issues",
 		"sources": "https://github.com/soradotwav/waylight"
 	},
-	"license": "CC0-1.0",
+	"license": "LGPL-3.0-or-later",
 	"icon": "assets/waylight/icon.png",
 	"environment": "client",
 	"entrypoints": {
