@@ -60,15 +60,16 @@ public final class WaylightConfigManager {
 			sanitized.lanternType = "normal";
 		}
 
-		if (!"right".equals(sanitized.lanternSide) && !"left".equals(sanitized.lanternSide)) {
-			sanitized.lanternSide = "right";
-		}
-
 		sanitized.autoLightThreshold = Mth.clamp(sanitized.autoLightThreshold, 0, 15);
 		sanitized.motionIntensity = Mth.clamp(sanitized.motionIntensity, 25, 200);
+		if (!"physics".equals(sanitized.firstPersonHandMotion) && !"static".equals(sanitized.firstPersonHandMotion)) {
+			sanitized.firstPersonHandMotion = "physics";
+		}
 
-		if (!"hip".equals(sanitized.poseMode) && !"hand_left".equals(sanitized.poseMode)) {
-			sanitized.poseMode = "hip";
+		if (!"right_hip".equals(sanitized.lanternPosition)
+			&& !"left_hip".equals(sanitized.lanternPosition)
+			&& !"left_hand".equals(sanitized.lanternPosition)) {
+			sanitized.lanternPosition = "right_hip";
 		}
 
 		return sanitized;

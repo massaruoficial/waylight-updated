@@ -1,7 +1,7 @@
 package com.soradotwav.waylight.render;
 
 import com.soradotwav.waylight.config.WaylightConfig;
-import com.soradotwav.waylight.lantern.PoseMode;
+import com.soradotwav.waylight.lantern.LanternPosition;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -27,15 +27,15 @@ public final class LanternTransformResolver {
 	private static final double FIRST_PERSON_PITCH_LIFT_SCALE = 0.0025D;
 
 	public LanternTransform resolveThirdPerson(VirtualLanternState lanternState, LanternPoseState poseState, WaylightConfig config) {
-		if (lanternState.poseMode() == PoseMode.HAND_LEFT) {
+		if (lanternState.lanternPosition().isHandHeld()) {
 			return resolveHandLeft(poseState);
 		}
 
-		return resolveHip(poseState, config);
+		return resolveHip(poseState, lanternState.lanternPosition());
 	}
 
-	private LanternTransform resolveHip(LanternPoseState poseState, WaylightConfig config) {
-		float sideSign = "left".equals(config.lanternSide) ? 1.0F : -1.0F;
+	private LanternTransform resolveHip(LanternPoseState poseState, LanternPosition lanternPosition) {
+		float sideSign = lanternPosition == LanternPosition.LEFT_HIP ? 1.0F : -1.0F;
 		float rotationSideSign = -sideSign;
 		return new LanternTransform(
 			LanternTransform.Attachment.BODY,
@@ -68,7 +68,7 @@ public final class LanternTransformResolver {
 
 	public boolean resolveWorldEmission(LocalPlayer player, VirtualLanternState lanternState, LanternPoseState poseState, WaylightConfig config, Vector3d destination) {
 		boolean firstPerson = Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON;
-		if (firstPerson && lanternState.poseMode() == PoseMode.HAND_LEFT) {
+		if (firstPerson && lanternState.lanternPosition().isHandHeld()) {
 			resolveFirstPersonHandLeftEmission(player, poseState, destination);
 			return true;
 		}

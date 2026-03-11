@@ -18,7 +18,7 @@ public final class VirtualLanternController {
 
 	private final WaylightConfigManager configManager;
 	private final LanternVisibilityRules visibilityRules = new LanternVisibilityRules();
-	private VirtualLanternState currentState = new VirtualLanternState(false, LanternType.NORMAL, PoseMode.HIP, false, false, false, false);
+	private VirtualLanternState currentState = new VirtualLanternState(false, LanternType.NORMAL, LanternPosition.RIGHT_HIP, false, false, false, false);
 
 	public VirtualLanternController(WaylightConfigManager configManager) {
 		this.configManager = configManager;
@@ -79,7 +79,7 @@ public final class VirtualLanternController {
 			client,
 			config.enabled,
 			LanternType.fromConfig(config.lanternType),
-			PoseMode.fromConfig(config.poseMode)
+			LanternPosition.fromConfig(config.lanternPosition)
 		);
 	}
 
@@ -120,7 +120,7 @@ public final class VirtualLanternController {
 			client,
 			true,
 			LanternType.fromConfig(config.lanternType),
-			PoseMode.fromConfig(config.poseMode)
+			LanternPosition.fromConfig(config.lanternPosition)
 		);
 		return !resolved.temporarilySuppressed()
 			&& !resolved.underwaterExtinguished()

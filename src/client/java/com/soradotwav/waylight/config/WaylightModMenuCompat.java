@@ -1,6 +1,7 @@
 package com.soradotwav.waylight.config;
 
 import com.soradotwav.WaylightClient;
+import com.soradotwav.waylight.render.FirstPersonHandMotionMode;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl3.api.ConfigCategory;
@@ -37,25 +38,15 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 							)
 							.controller(option -> EnumControllerBuilder.create(option).enumClass(LanternVariant.class))
 							.build())
-						.option(Option.<LanternSide>createBuilder()
-							.name(Component.translatable("waylight.config.option.lantern_side"))
-							.description(OptionDescription.of(Component.translatable("waylight.config.option.lantern_side.desc")))
+						.option(Option.<LanternPositionOption>createBuilder()
+							.name(Component.translatable("waylight.config.option.lantern_position"))
+							.description(OptionDescription.of(Component.translatable("waylight.config.option.lantern_position.desc")))
 							.binding(
-								LanternSide.fromConfig(config.lanternSide),
-								() -> LanternSide.fromConfig(WaylightClient.CONFIG_MANAGER.get().lanternSide),
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.lanternSide = value.configValue)
+								LanternPositionOption.fromConfig(config.lanternPosition),
+								() -> LanternPositionOption.fromConfig(WaylightClient.CONFIG_MANAGER.get().lanternPosition),
+								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.lanternPosition = value.configValue)
 							)
-							.controller(option -> EnumControllerBuilder.create(option).enumClass(LanternSide.class))
-							.build())
-						.option(Option.<PoseVariant>createBuilder()
-							.name(Component.translatable("waylight.config.option.carry_mode"))
-							.description(OptionDescription.of(Component.translatable("waylight.config.option.carry_mode.desc")))
-							.binding(
-								PoseVariant.fromConfig(config.poseMode),
-								() -> PoseVariant.fromConfig(WaylightClient.CONFIG_MANAGER.get().poseMode),
-								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.poseMode = value.configValue)
-							)
-							.controller(option -> EnumControllerBuilder.create(option).enumClass(PoseVariant.class))
+							.controller(option -> EnumControllerBuilder.create(option).enumClass(LanternPositionOption.class))
 							.build())
 						.build())
 					.group(OptionGroup.createBuilder()
@@ -127,6 +118,16 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 								.step(5)
 								.formatValue(value -> Component.literal(value + "%").withStyle(value == 100 ? ChatFormatting.GREEN : ChatFormatting.WHITE)))
 							.build())
+						.option(Option.<FirstPersonMotionOption>createBuilder()
+							.name(Component.translatable("waylight.config.option.first_person_hand_motion"))
+							.description(OptionDescription.of(Component.translatable("waylight.config.option.first_person_hand_motion.desc")))
+							.binding(
+								FirstPersonMotionOption.fromConfig(config.firstPersonHandMotion),
+								() -> FirstPersonMotionOption.fromConfig(WaylightClient.CONFIG_MANAGER.get().firstPersonHandMotion),
+								value -> WaylightClient.CONFIG_MANAGER.update(cfg -> cfg.firstPersonHandMotion = value.configValue)
+							)
+							.controller(option -> EnumControllerBuilder.create(option).enumClass(FirstPersonMotionOption.class))
+							.build())
 						.build())
 					.group(OptionGroup.createBuilder()
 						.name(Component.translatable("waylight.config.group.debug"))
@@ -171,20 +172,27 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 		}
 	}
 
-	private enum LanternSide {
-		RIGHT("right", Component.translatable("waylight.config.value.side.right")),
-		LEFT("left", Component.translatable("waylight.config.value.side.left"));
+	private enum LanternPositionOption {
+		RIGHT_HIP("right_hip", Component.translatable("waylight.config.value.position.right_hip")),
+		LEFT_HIP("left_hip", Component.translatable("waylight.config.value.position.left_hip")),
+		LEFT_HAND("left_hand", Component.translatable("waylight.config.value.position.left_hand"));
 
 		private final String configValue;
 		private final Component label;
 
-		LanternSide(String configValue, Component label) {
+		LanternPositionOption(String configValue, Component label) {
 			this.configValue = configValue;
 			this.label = label;
 		}
 
-		public static LanternSide fromConfig(String value) {
-			return "left".equals(value) ? LEFT : RIGHT;
+		public static LanternPositionOption fromConfig(String value) {
+			if ("left_hip".equals(value)) {
+				return LEFT_HIP;
+			}
+			if ("left_hand".equals(value)) {
+				return LEFT_HAND;
+			}
+			return RIGHT_HIP;
 		}
 
 		@Override
@@ -193,20 +201,20 @@ public final class WaylightModMenuCompat implements ModMenuApi {
 		}
 	}
 
-	private enum PoseVariant {
-		HIP("hip", Component.translatable("waylight.config.value.pose.hip")),
-		HAND_LEFT("hand_left", Component.translatable("waylight.config.value.pose.hand_left"));
+	private enum FirstPersonMotionOption {
+		PHYSICS("physics", Component.translatable("waylight.config.value.first_person_hand_motion.physics")),
+		STATIC("static", Component.translatable("waylight.config.value.first_person_hand_motion.static"));
 
 		private final String configValue;
 		private final Component label;
 
-		PoseVariant(String configValue, Component label) {
+		FirstPersonMotionOption(String configValue, Component label) {
 			this.configValue = configValue;
 			this.label = label;
 		}
 
-		public static PoseVariant fromConfig(String value) {
-			return "hand_left".equals(value) ? HAND_LEFT : HIP;
+		public static FirstPersonMotionOption fromConfig(String value) {
+			return "static".equals(value) ? STATIC : PHYSICS;
 		}
 
 		@Override

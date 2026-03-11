@@ -9,7 +9,7 @@ public final class WaylightConfig {
 	public boolean extinguishUnderwater = true;
 	public int autoLightThreshold = 7;
 	public int motionIntensity = 100;
+	public String firstPersonHandMotion = "physics";
 	public String lanternType = "normal";
-	public String lanternSide = "right";
-	public String poseMode = "hip";
+	public String lanternPosition = "right_hip";
 }

@@ -1,6 +1,7 @@
 package com.soradotwav.waylight.render;
 
 import com.soradotwav.waylight.lantern.VirtualLanternState;
+import com.soradotwav.waylight.lantern.LanternPosition;
 import com.soradotwav.WaylightClient;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -66,8 +67,8 @@ public final class LanternPoseController {
 		boolean sprinting = player.isSprinting();
 		boolean crouching = player.isCrouching();
 		boolean firstPerson = client.options.getCameraType() == CameraType.FIRST_PERSON;
-		boolean hipThirdPerson = lanternState.poseMode() == com.soradotwav.waylight.lantern.PoseMode.HIP && !firstPerson;
-		boolean handLeftThirdPerson = lanternState.poseMode() == com.soradotwav.waylight.lantern.PoseMode.HAND_LEFT && !firstPerson;
+		boolean hipThirdPerson = lanternState.lanternPosition().isHipMounted() && !firstPerson;
+		boolean handLeftThirdPerson = lanternState.lanternPosition() == LanternPosition.LEFT_HAND && !firstPerson;
 
 		lastVelocityX = velocity.x;
 		lastVelocityY = velocity.y;
@@ -81,7 +82,7 @@ public final class LanternPoseController {
 			: handLeftThirdPerson ? HAND_LEFT_THIRD_PERSON_MOTION_SCALE : 1.0F;
 		float targetBob = (float) Math.sin(player.tickCount * 0.22F) * Mth.clamp((float) horizontalSpeed * 8.0F, 0.0F, 1.3F) * modeMotionScale;
 		float motionIntensity = Mth.clamp(WaylightClient.CONFIG_MANAGER.get().motionIntensity / 100.0F, 0.25F, 2.0F);
-		boolean handLeftFirstPerson = lanternState.poseMode() == com.soradotwav.waylight.lantern.PoseMode.HAND_LEFT && firstPerson;
+		boolean handLeftFirstPerson = lanternState.lanternPosition() == LanternPosition.LEFT_HAND && firstPerson;
 		float motionMultiplier = sprinting ? SPRINT_MOTION_MULTIPLIER : crouching ? CROUCH_MOTION_MULTIPLIER : 1.0F;
 		if (!onGround) {
 			motionMultiplier *= AIR_MOTION_MULTIPLIER;

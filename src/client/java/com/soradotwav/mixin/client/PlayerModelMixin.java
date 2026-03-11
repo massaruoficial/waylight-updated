@@ -1,7 +1,7 @@
 package com.soradotwav.mixin.client;
 
 import com.soradotwav.WaylightClient;
-import com.soradotwav.waylight.lantern.PoseMode;
+import com.soradotwav.waylight.lantern.LanternPosition;
 import com.soradotwav.waylight.lantern.VirtualLanternState;
 import com.soradotwav.waylight.render.WaylightRenderHooks;
 import net.fabricmc.fabric.api.client.rendering.v1.FabricRenderState;
@@ -28,7 +28,7 @@ abstract class PlayerModelMixin extends HumanoidModel<AvatarRenderState> {
 		}
 
 		VirtualLanternState state = WaylightClient.LANTERN_CONTROLLER.getState();
-		if (state.poseMode() != PoseMode.HAND_LEFT || !state.enabled() || !state.modelVisible() || state.temporarilySuppressed()) {
+		if (state.lanternPosition() != LanternPosition.LEFT_HAND || !state.enabled() || !state.modelVisible() || state.temporarilySuppressed()) {
 			return;
 		}
 

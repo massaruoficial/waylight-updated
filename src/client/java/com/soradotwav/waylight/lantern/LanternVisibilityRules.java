@@ -5,25 +5,25 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 
 public final class LanternVisibilityRules {
-	public VirtualLanternState resolve(LocalPlayer player, Minecraft client, boolean enabled, LanternType lanternType, PoseMode poseMode) {
+	public VirtualLanternState resolve(LocalPlayer player, Minecraft client, boolean enabled, LanternType lanternType, LanternPosition lanternPosition) {
 		boolean firstPerson = client.options.getCameraType() == CameraType.FIRST_PERSON;
 
 		if (!enabled || player == null || !player.isAlive() || player.isRemoved()) {
-			return new VirtualLanternState(enabled, lanternType, poseMode, false, false, false, false);
+			return new VirtualLanternState(enabled, lanternType, lanternPosition, false, false, false, false);
 		}
 
-		if (poseMode == PoseMode.HAND_LEFT && (player.isSwimming() || !player.getOffhandItem().isEmpty())) {
-			return new VirtualLanternState(true, lanternType, poseMode, false, false, true, false);
+		if (lanternPosition.isHandHeld() && (player.isSwimming() || !player.getOffhandItem().isEmpty())) {
+			return new VirtualLanternState(true, lanternType, lanternPosition, false, false, true, false);
 		}
 
 		boolean firstPersonLight = com.soradotwav.WaylightClient.CONFIG_MANAGER.get().firstPersonLight;
 		boolean lightActive = !firstPerson || firstPersonLight;
-		boolean modelVisible = poseMode == PoseMode.HAND_LEFT || !firstPerson;
+		boolean modelVisible = lanternPosition.isHandHeld() || !firstPerson;
 
 		if (com.soradotwav.WaylightClient.CONFIG_MANAGER.get().extinguishUnderwater && player.isUnderWater()) {
-			return new VirtualLanternState(true, lanternType, poseMode, false, modelVisible, false, true);
+			return new VirtualLanternState(true, lanternType, lanternPosition, false, modelVisible, false, true);
 		}
 
-		return new VirtualLanternState(true, lanternType, poseMode, lightActive, modelVisible, false, false);
+		return new VirtualLanternState(true, lanternType, lanternPosition, lightActive, modelVisible, false, false);
 	}
 }
