@@ -20,6 +20,7 @@ public final class LanternRigResolver {
     private static final float EMISSION_X = 0.0F;
     private static final float EMISSION_Y = -0.28F;
     private static final float EMISSION_Z = 0.0F;
+    private static final float EMISSION_FORWARD_BIAS = 0.08F;
 
     private static final float FIRST_PERSON_BASE_X = -0.84F;
     private static final float FIRST_PERSON_BASE_Y = 0.78F;
@@ -78,6 +79,8 @@ public final class LanternRigResolver {
                 transform.translateX() + transform.emissionX(),
                 transform.translateY() + transform.emissionY(),
                 transform.translateZ() + transform.emissionZ());
+
+        offset.z += EMISSION_FORWARD_BIAS;
 
         offset.rotateZ((float) Math.toRadians(transform.rotateZ()));
         offset.rotateX((float) Math.toRadians(transform.rotateX()));
