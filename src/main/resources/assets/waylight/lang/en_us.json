@@ -30,7 +30,7 @@
   "waylight.config.option.motion_intensity.desc": "Scale how strongly the lantern reacts to movement, turns, jumps, and falls.",
   "waylight.config.option.debug_anchor_gizmo": "Debug Anchor Gizmo",
   "waylight.config.option.debug_anchor_gizmo.desc": "Show a small RGB gizmo at the lantern anchor for placement and rotation tuning.",
-  "waylight.config.value.lantern.normal": "Lantern",
+  "waylight.config.value.lantern.normal": "Normal",
   "waylight.config.value.lantern.soul": "Soul Lantern",
   "waylight.config.value.position.right_hip": "Right Hip",
   "waylight.config.value.position.left_hip": "Left Hip",
