@@ -1,9 +1,9 @@
 package com.soradotwav.waylight.render;
 
-import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 
 public final class WaylightRenderHooks {
     public static final RenderStateDataKey<Boolean> LOCAL_PLAYER_RENDER_STATE =
@@ -12,10 +12,10 @@ public final class WaylightRenderHooks {
     private WaylightRenderHooks() {}
 
     public static void register() {
-        LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
+        LivingEntityRenderLayerRegistrationCallback.EVENT.register(
                 (entityType, entityRenderer, registrationHelper, context) -> {
-                    if (entityType == EntityType.PLAYER && entityRenderer instanceof AvatarRenderer<?> avatarRenderer) {
-                        registrationHelper.register(new WaylightPlayerRenderFeature(avatarRenderer));
+                    if (entityType == EntityTypes.PLAYER && entityRenderer instanceof AvatarRenderer<?> avatarRenderer) {
+                        registrationHelper.register(new WaylightPlayerRenderFeature(avatarRenderer, context.getBlockModelResolver()));
                     }
                 });
     }

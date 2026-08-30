@@ -1,54 +1,56 @@
-![Waylight Banner](assets/waylight-banner.png)
+# Waylight 26.2 — Community Fork
 
-**A client-side virtual lantern mod for Fabric**, giving your player configurable vanilla lantern carry visuals with localized dynamic light and no inventory item requirement.
+A client-side virtual lantern mod for **Minecraft 26.2 Fabric**, based on
+[Waylight](https://github.com/soradotwav/waylight) by **soradotwav**.
 
-> Built for Minecraft `1.21.11`. Waylight is client-side only and does not modify server-side gameplay.
+This fork keeps Waylight's virtual-lantern behavior and adds compatibility and
+rendering work for a modern 26.2 client setup.
 
-Waylight includes:
+## Features in this fork
 
-- Vanilla lantern and soul lantern rendering
-- Carry positions: right hip, left hip, and left hand
-- First-person and third-person lantern behavior
-- Procedural carry motion with configurable intensity
-- Light emission localized to the lantern rig via LambDynamicLights
-- Optional auto-equip in darkness and auto-unequip in brightness
-- Underwater extinguish behavior
-- Full Mod Menu + YACL configuration UI
+- virtual Lantern / Soul Lantern without occupying the real offhand slot;
+- dynamic lighting through LambDynamicLights;
+- optional Punchy integration, including the virtual offhand render stack;
+- correct Punchy behavior while the player's real offhand is occupied;
+- optional Iris/FloodFill held-light bridge for Lantern and Soul Lantern;
+- EMF / Fresh Animations player-arm attachment compatibility;
+- independent first-person lantern pose and spring motion when Punchy is absent;
+- Minecraft 26.2-only Stonecutter build target.
 
-If you encounter any issues, please [report them here](https://github.com/soradotwav/waylight/issues).
+Punchy, Iris, EMF/Fresh Animations and shader packs are **not bundled** with
+this repository. Their names are used only for optional interoperability.
 
-### Controls
+## Requirements
 
-- `G`: Toggle lantern on/off
-
-### Config Highlights
-
-- Lantern type: `Lantern` or `Soul Lantern`
-- Lantern position: `Right Hip`, `Left Hip`, or `Left Hand`
-- First-person light toggle
-- First-person hand motion: `Physics` or `Static`
-- Auto-light behavior with threshold (`0-15`)
-- Motion intensity slider (`25%-200%`)
-- Debug anchor gizmo toggle
-
-Config is saved at `config/waylight.json`.
-
-### Requirements
-
-- Minecraft `1.21.11`
-- Java `21+`
-- Fabric Loader `>=0.18.4`
+- Minecraft 26.2
+- Fabric Loader 0.19.3 or newer
 - Fabric API
-- LambDynamicLights `>=4.9.1+1.21.11`
-- Optional: Mod Menu
+- Java 25 or newer
+- LambDynamicLights 4.12.0+26.2 or newer
 
-### Behavior Notes
+Mod Menu is optional.
 
-- Waylight is virtual and does not require a real lantern item.
-- In left-hand mode, the lantern suppresses if you are swimming or your offhand is occupied.
-- With `Extinguish Underwater` enabled, the lantern can remain visible while light output is disabled.
-- In first-person hip modes, the model is hidden by default; `First-Person Light` controls whether light remains active.
+## Building
 
-### License
+Clone the repository and run the included Gradle wrapper:
 
-`LGPL-3.0-or-later` (see [LICENSE](LICENSE)).
+```bash
+./gradlew build
+```
+
+The active Stonecutter target is `26.2-fabric`. Build artifacts are written to
+the Gradle build output directories.
+
+## License and attribution
+
+Waylight and this modified source tree are distributed under
+**LGPL-3.0-or-later**. See [`LICENSE`](LICENSE).
+
+The original Waylight project is authored by **soradotwav**. This repository is
+an unofficial community fork and is not presented as an official upstream
+release.
+
+The custom compatibility and first-person rendering changes in this fork do not
+bundle Amendments/Supplementaries code, classes or assets. See
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for additional attribution
+and interoperability notes.

@@ -5,7 +5,7 @@ import com.soradotwav.waylight.WaylightRuntime;
 import com.soradotwav.waylight.render.WaylightRenderHooks;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
@@ -25,7 +25,7 @@ public class WaylightClient implements ClientModInitializer {
         RUNTIME.configManager().load();
         WaylightRenderHooks.register();
 
-        KeyMapping toggleLanternKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        KeyMapping toggleLanternKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.waylight.toggle_lantern", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, WAYLIGHT_KEY_CATEGORY));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

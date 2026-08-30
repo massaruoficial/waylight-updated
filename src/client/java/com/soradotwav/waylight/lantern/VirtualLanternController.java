@@ -37,12 +37,12 @@ public final class VirtualLanternController {
         int localBrightness = client.level.getMaxLocalRawBrightness(player.blockPosition());
 
         if (!config.enabled && config.autoUnequipInBrightness && localBrightness > config.autoLightThreshold) {
-            player.displayClientMessage(Component.translatable("message.waylight.too_bright"), true);
+            client.gui.hud.setOverlayMessage(Component.translatable("message.waylight.too_bright"), false);
             return;
         }
 
         if (config.enabled && config.autoEquipInDarkness && localBrightness <= config.autoLightThreshold) {
-            player.displayClientMessage(Component.translatable("message.waylight.too_dark"), true);
+            client.gui.hud.setOverlayMessage(Component.translatable("message.waylight.too_dark"), false);
             return;
         }
 
@@ -50,9 +50,9 @@ public final class VirtualLanternController {
         configManager.save();
 
         playLanternSound(player, config.enabled);
-        player.displayClientMessage(
+        client.gui.hud.setOverlayMessage(
                 Component.translatable(config.enabled ? "message.waylight.lantern_on" : "message.waylight.lantern_off"),
-                true);
+                false);
     }
 
     public void tick(Minecraft client) {
@@ -88,8 +88,11 @@ public final class VirtualLanternController {
                     enabled, config.lanternType, config.lanternPosition, false, false, false, false);
         }
 
-        if (config.lanternPosition.isHandHeld()
-                && (player.isSwimming() || !player.getOffhandItem().isEmpty())) {
+        // LEFT_HAND is a virtual Waylight attachment. A real offhand item must not
+        // suppress it: first-person rendering hides that real item while the
+        // virtual lantern is active, and dynamic light remains enabled. Swimming
+        // still temporarily suppresses the hand-held rig as before.
+        if (config.lanternPosition.isHandHeld() && player.isSwimming()) {
             return new VirtualLanternState(true, config.lanternType, config.lanternPosition, false, false, true, false);
         }
 
