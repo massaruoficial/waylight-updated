@@ -35,6 +35,7 @@ Mod Menu is optional.
 Clone the repository and run the included Gradle wrapper:
 
 ```bash
+chmod +x gradlew
 ./gradlew build
 ```
 
