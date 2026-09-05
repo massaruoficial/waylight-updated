@@ -6,9 +6,6 @@ A client-side virtual lantern mod for **Minecraft 26.2 Fabric**, based on
 This fork keeps Waylight's virtual-lantern behavior and adds compatibility and
 rendering work for a modern 26.2 client setup.
 
-AI-assisted development: This project was developed with assistance from OpenAI's ChatGPT.
-(Please dont crucify me for it.)
-
 ## Features in this fork
 
 - virtual Lantern / Soul Lantern without occupying the real offhand slot;
@@ -38,7 +35,6 @@ Mod Menu is optional.
 Clone the repository and run the included Gradle wrapper:
 
 ```bash
-chmod +x gradlew
 ./gradlew build
 ```
 

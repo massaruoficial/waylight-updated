@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "waylight",
-  "version": "1.0.0-v17.8+26.2",
+  "version": "1.0.0-v18.2+26.2",
   "name": "Waylight",
   "description": "Client-side virtual lantern for Minecraft: carry a configurable vanilla lantern on your hip or in hand with dynamic light, no inventory item required. Includes optional Punchy and Iris shader compatibility.",
   "authors": [
@@ -19,6 +19,9 @@
     ],
     "modmenu": [
       "com.soradotwav.waylight.integration.WaylightModMenuCompat"
+    ],
+    "lambdynlights:initializer": [
+      "com.soradotwav.waylight.integration.WaylightDynamicLightsInitializer"
     ]
   },
   "mixins": [

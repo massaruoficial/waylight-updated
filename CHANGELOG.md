@@ -1,3 +1,10 @@
+## 1.0.0-v18.2+26.2
+
+- restored Iris shader IDs 1015/1022 from the current source;
+- added a second, native LambDynamicLights integration path for non-shader rendering;
+- the local player now becomes a LambDynamicLights entity light source while Waylight is active, independent of Iris/FloodFill item IDs;
+- kept the existing custom behavior adapter as a compatibility fallback.
+
 # Changelog
 
 ## 1.0.0-v17.8+26.2
